@@ -18,6 +18,10 @@ class User(AbstractUser):
         blank=False,
         null=False,
     )
+    is_admin = models.BooleanField(
+        verbose_name="Администратор",
+        default=False,
+    )
 
     def __str__(self):
         return (
@@ -41,6 +45,21 @@ class Follow(models.Model):
         blank=False,
         null=False,
     )
+
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+        ordering = ("follower",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=["follower", "following"],
+                name="follows",
+            ),
+            models.CheckConstraint(
+                check=~models.Q(follower=models.F("following")),
+                name="user_is_not_following",
+            ),
+        ]
 
     def __str__(self):
         return (
