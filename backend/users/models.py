@@ -49,15 +49,15 @@ class Follow(models.Model):
     class Meta:
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
-        ordering = ("follower",)
+        ordering = ("pk",)
         constraints = [
             models.UniqueConstraint(
                 fields=["follower", "following"],
-                name="follows",
+                name="uniq_follow",
             ),
             models.CheckConstraint(
                 check=~models.Q(follower=models.F("following")),
-                name="user_is_not_following",
+                name="follower_is_not_following",
             ),
         ]
 
