@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "backend.users",
     "backend.food",
     "foodgram",
+    "colorfield",
 ]
 
 REST_FRAMEWORK = {
@@ -109,5 +110,7 @@ USE_TZ = True
 
 
 STATIC_URL = "/static/"
+
+STATIC_ROOT = "/static_root/"
 
 AUTH_USER_MODEL = "users.User"
