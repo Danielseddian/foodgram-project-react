@@ -24,7 +24,6 @@ INSTALLED_APPS = [
     "backend",
     "backend.users",
     "backend.food",
-    "backend.marks_and_lists",
     "foodgram",
     "colorfield",
     "frontend",
