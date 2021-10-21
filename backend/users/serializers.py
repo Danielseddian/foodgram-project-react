@@ -53,14 +53,6 @@ class FollowSerializer(serializers.ModelSerializer):
 
 
 class FollowCreateDestroySerializer(serializers.ModelSerializer):
-    following = serializers.SlugRelatedField(
-        slug_field="id",
-        queryset=User.objects.all(),
-    )
-    follower = serializers.SlugRelatedField(
-        slug_field="id",
-        queryset=User.objects.all(),
-    )
 
     def validate(self, attrs):
         if self.context["request"].user == attrs["following"]:

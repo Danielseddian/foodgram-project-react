@@ -7,16 +7,36 @@ from rest_framework_simplejwt.views import (
 )
 
 from .users.views import FollowViewSet, UserViewSet, FollowChangeSet
+from .food.views import (
+    ChangeShoppingListViewSet,
+    RecipesViewSet,
+    TagsViewSet,
+    IngredientsViewSet,
+    FavoriteViewSet,
+)
 
 
 router = DefaultRouter()
+router.register("users/subscriptions", FollowViewSet, basename="follows")
 router.register("users", UserViewSet, basename="users")
-router.register("subscriptions", FollowViewSet, basename="follows")
 router.register(
     r"users/(?P<user_id>\d+)/subscriptions",
     FollowChangeSet,
     basename="subscribe",
 )
+router.register("recipes", RecipesViewSet, basename="recipes")
+router.register(
+    r"recipes/(?P<favorite_id>\d+)/favorite",
+    FavoriteViewSet,
+    basename="subscribe",
+)
+router.register(
+    r"recipes/(?P<shop_id>\d+)/shopping_cart",
+    ChangeShoppingListViewSet,
+    basename="shopping_cart",
+)
+router.register("tags", TagsViewSet, basename="tags")
+router.register("ingredients", IngredientsViewSet, basename="ingredients")
 
 
 urlpatterns = [

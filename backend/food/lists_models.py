@@ -1,7 +1,7 @@
 from django.db import models
 
 from ..users.models import User
-from .food_models import Recipes, Ingredients
+from .food_models import Recipes
 
 
 class ShoppingLists(models.Model):
@@ -12,28 +12,28 @@ class ShoppingLists(models.Model):
         blank=False,
         related_name="buyer",
     )
-    product = models.ForeignKey(
-        Ingredients,
-        blank=False,
-        null=False,
+    products = models.ForeignKey(
+        Recipes,
         on_delete=models.CASCADE,
-        related_name="to_shop",
+        null=False,
+        blank=False,
+        related_name="buying",
     )
 
     class Meta:
-        verbose_name = "Покупка"
-        verbose_name_plural = "Покупки"
+        verbose_name = "Список покупок для рецепта"
+        verbose_name_plural = "Список покупок для рецептов"
         ordering = ("pk",)
         constraints = [
             models.UniqueConstraint(
-                fields=["buyer", "product"],
-                name="uniq_purchase",
+                fields=["buyer", "products"],
+                name="uniq_shopping_list",
             ),
         ]
 
     def __str__(self):
         return (
-            f"Ингридиент {self.product.recipe.name} в списке покупок "
+            f"Продукты для  {self.products.name} в списке покупок "
             f"у пользователя {self.buyer.username}"
         )
 

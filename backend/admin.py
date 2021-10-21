@@ -114,15 +114,15 @@ class ShoppingListsAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "buyer",
-        "product",
+        "products",
     )
     search_fields = (
         "buyer",
-        "product",
+        "products",
     )
     list_filter = (
         "buyer",
-        "product",
+        "products",
     )
     empty_value_display = "-пусто-"
 
