@@ -1,8 +1,9 @@
 from rest_framework import serializers
+from drf_extra_fields.fields import Base64ImageField
 
 from .marks_models import Tags
 from .lists_models import Favorites, ShoppingLists
-from .food_models import Products, Recipes
+from .food_models import Ingredients, Products, Recipes
 from ..users.serializers import UserSerializer
 
 HAS_FAVORITED = "Этот рецепт уже в избранном"
@@ -19,6 +20,22 @@ class IngredientsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Products
+
+
+class RecipeIngredientSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(read_only=True, source="ingredient.name")
+    measurement_unit = serializers.CharField(
+        read_only=True, source="ingredient.measurement_unit"
+    )
+
+    class Meta:
+        fields = (
+            "id",
+            "name",
+            "measurement_unit",
+            "amount",
+        )
+        model = Ingredients
 
 
 class FavoriteCreateDestroySerializer(serializers.ModelSerializer):
@@ -48,13 +65,14 @@ class ShoppingListCreateDestroySerializer(serializers.ModelSerializer):
 
 
 class RecipesSerializer(serializers.ModelSerializer):
-    Tags = TagsSerializer(many=True, read_only=True)
+    tags = TagsSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
-    ingredients = IngredientsSerializer(many=True, read_only=True)
+    ingredients = RecipeIngredientSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField("get_user_favorite")
     is_in_shopping_cart = serializers.SerializerMethodField(
         "get_user_shopping_cart",
     )
+    image = Base64ImageField(max_length=None, use_url=True)
 
     class Meta:
         fields = "__all__"

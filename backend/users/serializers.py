@@ -3,6 +3,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
 from .models import User, Follow
+from ..food.food_models import Recipes
 
 SELF_FOLLOWING = "Нельзя подписаться на себя"
 FOLLOW_EXISTS = "Такая подписка уже существует"
@@ -36,24 +37,29 @@ class UserSerializer(serializers.ModelSerializer):
         return follow
 
 
-class FollowSerializer(serializers.ModelSerializer):
-    following = serializers.SlugRelatedField(
-        slug_field="username",
-        queryset=User.objects.all(),
-    )
-    follower = serializers.SlugRelatedField(
-        slug_field="username",
-        read_only=True,
-        default=serializers.CurrentUserDefault,
-    )
+class RecipesSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ("id", "name", "image", "cooking_time")
+        model = Recipes
+
+
+class FollowSerializer(UserSerializer):
+    recipes = RecipesSerializer(read_only=True, many=True, source="author")
 
     class Meta:
-        fields = "__all__"
-        model = Follow
+        fields = (
+            "email",
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "is_subscribed",
+            "recipes",
+        )
+        model = User
 
 
 class FollowCreateDestroySerializer(serializers.ModelSerializer):
-
     def validate(self, attrs):
         if self.context["request"].user == attrs["following"]:
             raise ValidationError(SELF_FOLLOWING)

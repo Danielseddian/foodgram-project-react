@@ -62,9 +62,9 @@ class Recipes(models.Model):
         null=False,
         blank=False,
     )
-    cooking_time = models.DurationField(
-        verbose_name="Время приготовления",
-        help_text="Какое время будет готовиться?",
+    cooking_time = models.PositiveIntegerField(
+        verbose_name="Время приготовления в минутах",
+        help_text="Сколько минут будет готовиться?",
         null=False,
         blank=False,
     )

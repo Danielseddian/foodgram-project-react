@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import (
     CreateModelMixin,
@@ -17,6 +18,7 @@ from .serializers import (
 
 
 class ListViewSet(GenericViewSet, ListModelMixin):
+    pagination_class = PageNumberPagination
     pass
 
 
@@ -29,7 +31,7 @@ class FollowViewSet(ListViewSet):
     serializer_class = FollowSerializer
 
     def get_queryset(self):
-        return self.request.user.follower
+        return User.objects.filter(following__follower=self.request.user.id)
 
 
 class FollowChangeSet(CreateModelMixin, GenericViewSet):
@@ -38,7 +40,6 @@ class FollowChangeSet(CreateModelMixin, GenericViewSet):
     def get(self, request, *args, **kwargs):
         request.data["following"] = kwargs["user_id"]
         request.data["follower"] = 2  # self.request.user.id
-        # data = self.create(request, *args, **kwargs)
         return self.create(request, *args, **kwargs)
 
     def delete(self, *args, **kwargs):
