@@ -14,6 +14,7 @@ from ..users.models import User
 from ..permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .marks_models import Tags
 from .serializers import (
+    RecipeAddSerializer,
     RecipesSerializer,
     ShoppingListCreateDestroySerializer,
     TagsSerializer,
@@ -85,10 +86,19 @@ class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
     # permission_classes = permissions.IsAuthenticated
 
     def get(self, request, *args, **kwargs):
-        request.data["products"] = kwargs["shop_id"]
+        buying_id = kwargs["buying_id"]
+        instance = get_object_or_404(Recipes, id=buying_id)
+        self.check_object_permissions(self.request, instance)
+        serializer = self.get_view_serializer(instance)
+        request.data["products"] = buying_id
         request.data["buyer"] = 2  # self.request.user.id
-        # data = self.create(request, *args, **kwargs)
-        return self.create(request, *args, **kwargs)
+        self.create(request, *args, **kwargs)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def get_view_serializer(self, *args, **kwargs):
+        serializer_class = RecipeAddSerializer
+        kwargs.setdefault("context", self.get_serializer_context())
+        return serializer_class(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         get_object_or_404(
@@ -106,10 +116,19 @@ class FavoriteViewSet(GenericViewSet, CreateModelMixin):
     # permission_classes = permissions.IsAuthenticated
 
     def get(self, request, *args, **kwargs):
-        request.data["recipe"] = kwargs["favorite_id"]
+        favorite_id = kwargs["favorite_id"]
+        instance = get_object_or_404(Recipes, id=favorite_id)
+        self.check_object_permissions(self.request, instance)
+        serializer = self.get_view_serializer(instance)
+        request.data["recipe"] = favorite_id
         request.data["admirer"] = 2  # self.request.user.id
-        # data = self.create(request, *args, **kwargs)
-        return self.create(request, *args, **kwargs)
+        self.create(request, *args, **kwargs)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def get_view_serializer(self, *args, **kwargs):
+        serializer_class = RecipeAddSerializer
+        kwargs.setdefault("context", self.get_serializer_context())
+        return serializer_class(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         get_object_or_404(

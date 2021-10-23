@@ -31,7 +31,7 @@ router.register(
     basename="subscribe",
 )
 router.register(
-    r"recipes/(?P<shop_id>\d+)/shopping_cart",
+    r"recipes/(?P<buying_id>\d+)/shopping_cart",
     ChangeShoppingListViewSet,
     basename="shopping_cart",
 )

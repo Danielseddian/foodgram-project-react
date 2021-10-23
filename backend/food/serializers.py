@@ -103,3 +103,9 @@ class RecipesSerializer(serializers.ModelSerializer):
             else False
         )
         return is_in_shopping_cart
+
+
+class RecipeAddSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ["id", "name", "image", "cooking_time"]
+        model = Recipes
