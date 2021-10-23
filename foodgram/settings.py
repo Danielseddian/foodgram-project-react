@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "rest_framework",
     "django_filters",
+    "corsheaders",
     "rest_framework.authtoken",
     "djoser",
     "backend",
@@ -50,6 +51,7 @@ SIMPLE_JWT = {
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -112,6 +114,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_URLS_REGEX = r"^/api/.*$"
 
 STATIC_URL = "/static/"
 

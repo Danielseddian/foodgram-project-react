@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status  # , permissions
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
@@ -36,6 +36,7 @@ class FollowViewSet(ListViewSet):
 
 class FollowChangeSet(CreateModelMixin, GenericViewSet):
     serializer_class = FollowCreateDestroySerializer
+    # permission_classes = permissions.IsAuthenticated
 
     def get(self, request, *args, **kwargs):
         request.data["following"] = kwargs["user_id"]

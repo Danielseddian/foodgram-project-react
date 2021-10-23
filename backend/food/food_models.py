@@ -33,7 +33,7 @@ class Recipes(models.Model):
         Tags,
         null=False,
         blank=False,
-        related_name="tag"
+        related_name="tag",
     )
     author = models.ForeignKey(
         User,

@@ -1,5 +1,4 @@
-from django_filters import rest_framework as filters
-from rest_framework import status
+from rest_framework import status  # , permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -12,7 +11,7 @@ from rest_framework.mixins import (
 
 from .food_models import Ingredients, Products, Recipes
 from ..users.models import User
-
+from ..permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .marks_models import Tags
 from .serializers import (
     RecipesSerializer,
@@ -21,6 +20,8 @@ from .serializers import (
     IngredientsSerializer,
     FavoriteCreateDestroySerializer,
 )
+
+from .filters import RecipesFilter
 
 HAS_NOT_INGREDIENT = "В базе данных нет ингредиента с id {id}"
 
@@ -48,13 +49,8 @@ class RecipesViewSet(ModelViewSet):
     serializer_class = RecipesSerializer
     queryset = Recipes.objects.all()
     pagination_class = PageNumberPagination
-    filter_backends = [filters.DjangoFilterBackend]
-    filterset_fields = [
-        "author",
-        "favorite",
-        "buying",
-        "tags",
-    ]
+    filterset_class = RecipesFilter
+    permission_classes = IsAdminOrReadOnly, IsAuthorOrReadOnly
 
     def perform_create(self, serializer):
         serializer.save(
@@ -86,6 +82,7 @@ class RecipesViewSet(ModelViewSet):
 
 class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
     serializer_class = ShoppingListCreateDestroySerializer
+    # permission_classes = permissions.IsAuthenticated
 
     def get(self, request, *args, **kwargs):
         request.data["products"] = kwargs["shop_id"]
@@ -106,6 +103,7 @@ class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
 
 class FavoriteViewSet(GenericViewSet, CreateModelMixin):
     serializer_class = FavoriteCreateDestroySerializer
+    # permission_classes = permissions.IsAuthenticated
 
     def get(self, request, *args, **kwargs):
         request.data["recipe"] = kwargs["favorite_id"]
