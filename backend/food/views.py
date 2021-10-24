@@ -1,4 +1,4 @@
-from rest_framework import status  # , permissions
+from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -10,7 +10,6 @@ from rest_framework.mixins import (
 )
 
 from .food_models import Ingredients, Products, Recipes
-from ..users.models import User
 from ..permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .marks_models import Tags
 from .serializers import (
@@ -27,23 +26,20 @@ from .filters import RecipesFilter
 HAS_NOT_INGREDIENT = "В базе данных нет ингредиента с id {id}"
 
 
-class ListRetriveView(
-    ListModelMixin,
-    RetrieveModelMixin,
-    GenericViewSet,
-):
+class ListRetriveView(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     pagination_class = PageNumberPagination
-    pass
 
 
 class TagsViewSet(ListRetriveView):
     serializer_class = TagsSerializer
     queryset = Tags.objects.all()
+    permission_classes = [permissions.AllowAny]
 
 
 class IngredientsViewSet(ListRetriveView):
     serializer_class = IngredientsSerializer
     queryset = Products.objects.all()
+    permission_classes = [permissions.AllowAny]
 
 
 class RecipesViewSet(ModelViewSet):
@@ -51,13 +47,13 @@ class RecipesViewSet(ModelViewSet):
     queryset = Recipes.objects.all()
     pagination_class = PageNumberPagination
     filterset_class = RecipesFilter
-    permission_classes = IsAdminOrReadOnly, IsAuthorOrReadOnly
+    permission_classes = [IsAdminOrReadOnly, IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(
             tags=self.request.data["tags"],
-            author=get_object_or_404(User, id=1),
-        )  # self.request.user,)
+            author=self.request.user,
+        )
 
     def create(self, request, *args, **kwargs):
         [
@@ -83,7 +79,7 @@ class RecipesViewSet(ModelViewSet):
 
 class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
     serializer_class = ShoppingListCreateDestroySerializer
-    # permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         buying_id = kwargs["buying_id"]
@@ -91,7 +87,7 @@ class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
         self.check_object_permissions(self.request, instance)
         serializer = self.get_view_serializer(instance)
         request.data["products"] = buying_id
-        request.data["buyer"] = 2  # self.request.user.id
+        request.data["buyer"] = self.request.user.id
         self.create(request, *args, **kwargs)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -102,10 +98,7 @@ class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
 
     def delete(self, *args, **kwargs):
         get_object_or_404(
-            get_object_or_404(
-                User,
-                id=2,
-            ).admirer,  # self.request.user.admirer,
+            self.request.user.admirer,
             recipe__id=kwargs["shop_id"],
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -113,7 +106,7 @@ class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
 
 class FavoriteViewSet(GenericViewSet, CreateModelMixin):
     serializer_class = FavoriteCreateDestroySerializer
-    # permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         favorite_id = kwargs["favorite_id"]
@@ -121,7 +114,7 @@ class FavoriteViewSet(GenericViewSet, CreateModelMixin):
         self.check_object_permissions(self.request, instance)
         serializer = self.get_view_serializer(instance)
         request.data["recipe"] = favorite_id
-        request.data["admirer"] = 2  # self.request.user.id
+        request.data["admirer"] = self.request.user.id
         self.create(request, *args, **kwargs)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -132,10 +125,7 @@ class FavoriteViewSet(GenericViewSet, CreateModelMixin):
 
     def delete(self, *args, **kwargs):
         get_object_or_404(
-            get_object_or_404(
-                User,
-                id=2,
-            ).admirer,  # self.request.user.admirer,
+            self.request.user.admirer,
             recipe__id=kwargs["favorite_id"],
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
