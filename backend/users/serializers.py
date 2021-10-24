@@ -2,8 +2,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
-from .models import User, Follow
 from ..food.food_models import Recipes
+from .models import Follow, User
 
 SELF_FOLLOWING = "Нельзя подписаться на себя"
 FOLLOW_EXISTS = "Такая подписка уже существует"

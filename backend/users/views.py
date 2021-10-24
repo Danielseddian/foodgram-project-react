@@ -1,20 +1,14 @@
-from rest_framework import status, permissions
-from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from rest_framework import permissions, status
+from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
+                                   RetrieveModelMixin)
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-from rest_framework.mixins import (
-    CreateModelMixin,
-    ListModelMixin,
-    RetrieveModelMixin,
-)
 
 from .models import User
-from .serializers import (
-    UserSerializer,
-    FollowSerializer,
-    FollowCreateDestroySerializer,
-)
+from .serializers import (FollowCreateDestroySerializer, FollowSerializer,
+                          UserSerializer)
 
 
 class ListViewSet(GenericViewSet, ListModelMixin):

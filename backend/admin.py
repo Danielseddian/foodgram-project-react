@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from backend.users.models import User, Follow
 from backend.food.food_models import Ingredients, Products, Recipes
-from backend.food.lists_models import ShoppingLists, Favorites
+from backend.food.lists_models import Favorites, ShoppingLists
 from backend.food.marks_models import Tags
+from backend.users.models import Follow, User
 
 
 @admin.register(User)

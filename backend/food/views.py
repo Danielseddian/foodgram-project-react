@@ -1,27 +1,19 @@
 from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
+from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
+                                   RetrieveModelMixin)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from rest_framework.mixins import (
-    CreateModelMixin,
-    ListModelMixin,
-    RetrieveModelMixin,
-)
 
-from .food_models import Ingredients, Products, Recipes
 from ..permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
-from .marks_models import Tags
-from .serializers import (
-    RecipeAddSerializer,
-    RecipesSerializer,
-    ShoppingListCreateDestroySerializer,
-    TagsSerializer,
-    IngredientsSerializer,
-    FavoriteCreateDestroySerializer,
-)
-
 from .filters import RecipesFilter
+from .food_models import Ingredients, Products, Recipes
+from .marks_models import Tags
+from .serializers import (FavoriteCreateDestroySerializer,
+                          IngredientsSerializer, RecipeAddSerializer,
+                          RecipesSerializer,
+                          ShoppingListCreateDestroySerializer, TagsSerializer)
 
 HAS_NOT_INGREDIENT = "В базе данных нет ингредиента с id {id}"
 

@@ -1,20 +1,12 @@
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
 
-from .users.views import FollowViewSet, UserViewSet, FollowChangeSet
-from .food.views import (
-    ChangeShoppingListViewSet,
-    RecipesViewSet,
-    TagsViewSet,
-    IngredientsViewSet,
-    FavoriteViewSet,
-)
-
+from .food.views import (ChangeShoppingListViewSet, FavoriteViewSet,
+                         IngredientsViewSet, RecipesViewSet, TagsViewSet)
+from .users.views import FollowChangeSet, FollowViewSet, UserViewSet
 
 router = DefaultRouter()
 router.register("users/subscriptions", FollowViewSet, basename="follows")
