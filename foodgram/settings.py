@@ -1,13 +1,19 @@
 import os
 from datetime import timedelta
+from dotenv import load_dotenv
+from os.path import dirname, abspath, join, exists
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = dirname(dirname(abspath(__file__)))
 
-SECRET_KEY = "s0)7*nyequgq46g*8!+(@nyypl*5td7d3jax%!9owebl)k*m!8"
+dotenv_path = join(BASE_DIR, ".env")
+if exists(dotenv_path):
+    load_dotenv(dotenv_path)
 
-DEBUG = True
+SECRET_KEY = os.environ.get("SECRET_KEY", "some_secret_key")
 
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get("DEBUG", False)
+
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost web").split()
 
 
 INSTALLED_APPS = [
@@ -28,6 +34,7 @@ INSTALLED_APPS = [
     "foodgram",
     "colorfield",
     "frontend",
+    "web",
 ]
 
 REST_FRAMEWORK = {
@@ -92,14 +99,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
-
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql_psycopg2"),
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("POSTGRES_USER"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT"),
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
