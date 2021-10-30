@@ -1,29 +1,18 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
-from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
-                                   RetrieveModelMixin)
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from .models import User
-from .serializers import (FollowCreateDestroySerializer, FollowSerializer,
-                          UserSerializer)
+from .serializers import FollowCreateDestroySerializer, FollowSerializer
 
 
-class ListViewSet(GenericViewSet, ListModelMixin):
-    pagination_class = PageNumberPagination
-
-
-class UserViewSet(ListViewSet, CreateModelMixin, RetrieveModelMixin):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]
-
-
-class FollowViewSet(ListViewSet):
+class FollowViewSet(GenericViewSet, ListModelMixin):
     serializer_class = FollowSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         return User.objects.filter(following__follower=self.request.user.id)

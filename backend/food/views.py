@@ -2,11 +2,11 @@ from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
                                    RetrieveModelMixin)
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from ..permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .filters import RecipesFilter
 from .food_models import Ingredients, Products, Recipes
 from .marks_models import Tags
@@ -19,7 +19,7 @@ HAS_NOT_INGREDIENT = "В базе данных нет ингредиента с 
 
 
 class ListRetriveView(ListModelMixin, RetrieveModelMixin, GenericViewSet):
-    pagination_class = PageNumberPagination
+    pagination_class = LimitOffsetPagination
 
 
 class TagsViewSet(ListRetriveView):
@@ -37,7 +37,7 @@ class IngredientsViewSet(ListRetriveView):
 class RecipesViewSet(ModelViewSet):
     serializer_class = RecipesSerializer
     queryset = Recipes.objects.all()
-    pagination_class = PageNumberPagination
+    pagination_class = LimitOffsetPagination
     filterset_class = RecipesFilter
     permission_classes = [IsAdminOrReadOnly, IsAuthorOrReadOnly]
 

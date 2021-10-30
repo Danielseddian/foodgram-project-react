@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
-from ..food.food_models import Recipes
+from food.food_models import Recipes
 from .models import Follow, User
 
 SELF_FOLLOWING = "Нельзя подписаться на себя"
@@ -35,6 +35,18 @@ class UserSerializer(serializers.ModelSerializer):
             else False
         )
         return follow
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            "email",
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+        )
+        model = User
 
 
 class RecipesSerializer(serializers.ModelSerializer):
