@@ -1,88 +1,93 @@
-import os
-from dotenv import load_dotenv
-from os.path import dirname, abspath, join, exists
+from os import environ
+from os.path import abspath, dirname, exists, join
 
-BASE_DIR = dirname(abspath(__file__))
+from dotenv import load_dotenv
+
+contrib = "django.contrib."
+permissions = "rest_framework.permissions."
+throttling = "rest_framework.throttling."
+password_validation = contrib + "auth.password_validation."
+pagination = "rest_framework.pagination."
+middleware = "django.middleware."
+context_processors = "django.template.context_processors."
+
+BASE_DIR = dirname(dirname(abspath(__file__)))
 
 dotenv_path = join(BASE_DIR, ".env")
 if exists(dotenv_path):
     load_dotenv(dotenv_path)
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "some_secret_key")
-
-DEBUG = os.environ.get("DEBUG", False)
-
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost web").split()
-
-INSTALLED_APPS = [
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "rest_framework",
+django_apps = [
+    contrib + "contenttypes",
+    contrib + "sessions",
+    contrib + "messages",
+    contrib + "staticfiles",
+    contrib + "admin",
+    contrib + "auth",
     "django_filters",
-    "corsheaders",
-    "rest_framework.authtoken",
-    "djoser",
+]
+
+local_apps = [
     "users",
     "food",
     "foodgram",
-    "colorfield",
     "api",
 ]
 
-AUTH_USER_MODEL = "users.User"
+others_apps = [
+    "rest_framework",
+    "corsheaders",
+    "rest_framework.authtoken",
+    "djoser",
+    "colorfield",
+]
+
+INSTALLED_APPS = django_apps + local_apps + others_apps
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASES": (
         "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-        "rest_framework.permissions.AllowAny",
-        "rest_framework.permissions.IsAdminUser",
+        permissions + "IsAuthenticated",
+        permissions + "AllowAny",
+        permissions + "IsAdminUser",
     ],
     "DEFAULT_THROTTLE_CLASSES": [
-        "rest_framework.throttling.UserRateThrottle",
-        "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.ScopedRateThrottle",
+        throttling + "UserRateThrottle",
+        throttling + "AnonRateThrottle",
+        throttling + "ScopedRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
         "user": "100/minute",
         "anon": "10/minute",
     },
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "DEFAULT_PAGINATION_CLASS": pagination + "LimitOffsetPagination",
     "PAGE_SIZE": 10,
-    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ],
 }
 
 DJOSER = {
     "SERIALIZERS": {
-        "user_list": "users.serializers.UserSerializer",
         "user": "users.serializers.UserSerializer",
         "user_create": "users.serializers.UserCreateSerializer",
     },
-    "PERMISSIONS": {
-        "user_list": ["rest_framework.permissions.AllowAny"],
-    },
-    "USER_ID_FIELD": "email",
+    "LOGIN_FIELD": "email",
 }
 
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    middleware + "security.SecurityMiddleware",
+    contrib + "sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    middleware + "common.CommonMiddleware",
+    middleware + "csrf.CsrfViewMiddleware",
+    contrib + "auth.middleware.AuthenticationMiddleware",
+    contrib + "messages.middleware.MessageMiddleware",
+    middleware + "clickjacking.XFrameOptionsMiddleware",
 ]
-
-ROOT_URLCONF = "foodgram.urls"
 
 TEMPLATES = [
     {
@@ -91,40 +96,41 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
+                context_processors + "debug",
+                context_processors + "request",
+                contrib + "auth.context_processors.auth",
+                contrib + "messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = "foodgram.wsgi.application"
-
 DATABASES = {
     "default": {
-        "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql_psycopg2"),
-        "NAME": os.environ.get("DB_NAME"),
-        "USER": os.environ.get("POSTGRES_USER"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-        "HOST": os.environ.get("DB_HOST"),
-        "PORT": os.environ.get("DB_PORT"),
+        "ENGINE": environ.get(
+            "DB_ENGINE",
+            "django.db.backends.postgresql_psycopg2",
+        ),
+        "NAME": environ.get("DB_NAME"),
+        "USER": environ.get("POSTGRES_USER"),
+        "PASSWORD": environ.get("POSTGRES_PASSWORD"),
+        "HOST": environ.get("DB_HOST"),
+        "PORT": environ.get("DB_PORT"),
     }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": password_validation + "UserAttributeSimilarityValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": password_validation + "MinimumLengthValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": password_validation + "CommonPasswordValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": password_validation + "NumericPasswordValidator",
     },
 ]
 
@@ -145,8 +151,20 @@ CORS_URLS_REGEX = r"^/api/.*$"
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = join(BASE_DIR, "static")
 
 MEDIA_URL = "/media/"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = join(BASE_DIR, "media")
+
+SECRET_KEY = environ.get("SECRET_KEY", "some_secret_key")
+
+DEBUG = environ.get("DEBUG", False)
+
+ALLOWED_HOSTS = environ.get("ALLOWED_HOSTS", "localhost web").split()
+
+AUTH_USER_MODEL = "users.User"
+
+WSGI_APPLICATION = "foodgram.wsgi.application"
+
+ROOT_URLCONF = "foodgram.urls"

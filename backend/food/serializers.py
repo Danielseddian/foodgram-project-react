@@ -2,6 +2,7 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from users.serializers import UserSerializer
+
 from .food_models import Ingredients, Products, Recipes
 from .lists_models import Favorites, ShoppingLists
 from .marks_models import Tags
