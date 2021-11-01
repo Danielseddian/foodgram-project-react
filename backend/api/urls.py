@@ -13,7 +13,7 @@ from users.views import FollowChangeSet, FollowViewSet
 router = DefaultRouter()
 router.register("users/subscriptions", FollowViewSet, basename="follows")
 router.register(
-    r"users/(?P<user_id>\d+)/subscriptions",
+    r"users/(?P<user_id>\d+)/subscribe",
     FollowChangeSet,
     basename="subscribe",
 )

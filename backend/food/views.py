@@ -19,7 +19,7 @@ HAS_NOT_INGREDIENT = "В базе данных нет ингредиента с 
 
 
 class ListRetriveView(ListModelMixin, RetrieveModelMixin, GenericViewSet):
-    pagination_class = LimitOffsetPagination
+    pass
 
 
 class TagsViewSet(ListRetriveView):
