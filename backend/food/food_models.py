@@ -1,5 +1,4 @@
 from django.db import models
-
 from users.models import User
 
 from .marks_models import Tags
@@ -90,7 +89,7 @@ class Ingredients(models.Model):
         null=False,
         on_delete=models.CASCADE,
     )
-    amount = models.IntegerField(
+    amount = models.PositiveIntegerField(
         verbose_name="Количество",
         max_length=20,
         blank=False,

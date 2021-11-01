@@ -45,7 +45,7 @@ others_apps = [
 INSTALLED_APPS = django_apps + local_apps + others_apps
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASES": (
+    "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
@@ -73,8 +73,11 @@ DJOSER = {
     "SERIALIZERS": {
         "user": "users.serializers.UserSerializer",
         "user_create": "users.serializers.UserCreateSerializer",
+        "current_user": "users.serializers.UserSerializer",
     },
+    "PERMISSIONS": {"user_list": [permissions + "AllowAny"]},
     "LOGIN_FIELD": "email",
+    "HIDE_USERS": False,
 }
 
 

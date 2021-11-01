@@ -1,6 +1,5 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-
 from users.serializers import UserSerializer
 
 from .food_models import Ingredients, Products, Recipes
@@ -85,8 +84,8 @@ class RecipesSerializer(serializers.ModelSerializer):
             True
             if admirer.is_authenticated
             and Favorites.objects.filter(
-                recipe=obj,
-                admirer=admirer,
+                recipe=obj.id,
+                admirer=admirer.id,
             )
             else False
         )
@@ -98,8 +97,8 @@ class RecipesSerializer(serializers.ModelSerializer):
             True
             if buyer.is_authenticated
             and ShoppingLists.objects.filter(
-                recipe=obj,
-                admirer=buyer,
+                products=obj.id,
+                buyer=buyer.id,
             )
             else False
         )

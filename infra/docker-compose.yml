@@ -13,9 +13,6 @@ services:
       context: ../backend
       dockerfile: Dockerfile
     restart: always
-    volumes:
-      - ../backend/static:/var/html/static/
-      - ../backend/media:/var/html/media/
     depends_on:
       - db
     env_file:
@@ -27,8 +24,6 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
-    depends_on:
-      - web
 
   nginx:
     image: nginx:1.19.3
@@ -39,7 +34,3 @@ services:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
       - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
-      - ../backend/static:/var/html/static/
-      - ../backend/media:/var/html/media/
-    depends_on:
-      - frontend

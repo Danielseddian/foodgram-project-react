@@ -1,12 +1,11 @@
+from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from rest_framework import permissions, status
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
                                    RetrieveModelMixin)
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-
-from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 
 from .filters import RecipesFilter
 from .food_models import Ingredients, Products, Recipes
@@ -56,15 +55,17 @@ class RecipesViewSet(ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        recipe_id = serializer.data["id"]
         for ingredient in request.data["ingredients"]:
             Ingredients.objects.create(
-                recipe=get_object_or_404(Recipes, id=serializer.data["id"]),
+                recipe=get_object_or_404(Recipes, id=recipe_id),
                 ingredient=get_object_or_404(Products, id=ingredient["id"]),
                 amount=ingredient["amount"],
             )
         headers = self.get_success_headers(serializer.data)
+        recipe = self.get_serializer(get_object_or_404(Recipes, id=recipe_id))
         return Response(
-            serializer.data,
+            recipe.data,
             status=status.HTTP_201_CREATED,
             headers=headers,
         )
@@ -75,11 +76,11 @@ class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        buying_id = kwargs["buying_id"]
-        instance = get_object_or_404(Recipes, id=buying_id)
+        recipe_id = kwargs["recipe_id"]
+        instance = get_object_or_404(Recipes, id=recipe_id)
         self.check_object_permissions(self.request, instance)
         serializer = self.get_view_serializer(instance)
-        request.data["products"] = buying_id
+        request.data["products"] = recipe_id
         request.data["buyer"] = self.request.user.id
         self.create(request, *args, **kwargs)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -91,8 +92,8 @@ class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
 
     def delete(self, *args, **kwargs):
         get_object_or_404(
-            self.request.user.admirer,
-            recipe__id=kwargs["shop_id"],
+            self.request.user.buyer,
+            products__id=kwargs["recipe_id"],
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -102,11 +103,11 @@ class FavoriteViewSet(GenericViewSet, CreateModelMixin):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        favorite_id = kwargs["favorite_id"]
-        instance = get_object_or_404(Recipes, id=favorite_id)
+        recipe_id = kwargs["recipe_id"]
+        instance = get_object_or_404(Recipes, id=recipe_id)
         self.check_object_permissions(self.request, instance)
         serializer = self.get_view_serializer(instance)
-        request.data["recipe"] = favorite_id
+        request.data["recipe"] = recipe_id
         request.data["admirer"] = self.request.user.id
         self.create(request, *args, **kwargs)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -119,6 +120,14 @@ class FavoriteViewSet(GenericViewSet, CreateModelMixin):
     def delete(self, *args, **kwargs):
         get_object_or_404(
             self.request.user.admirer,
-            recipe__id=kwargs["favorite_id"],
+            recipe__id=kwargs["recipe_id"],
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DownloadShoppingCart(GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, *args, **kwargs):
+        queryset = self.request.user.buyer
+        print(queryset)

@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
-from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
                                    RetrieveModelMixin)
 from rest_framework.pagination import LimitOffsetPagination
@@ -8,18 +7,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from .models import User
-from .serializers import (FollowCreateDestroySerializer, FollowSerializer,
-                          UserSerializer)
-
-
-class UserViewSet(ListModelMixin, GenericAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    pagination_class = LimitOffsetPagination
-    permission_classes = [permissions.AllowAny]
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+from .serializers import FollowCreateDestroySerializer, FollowSerializer
 
 
 class FollowViewSet(GenericViewSet, ListModelMixin):
