@@ -1,4 +1,5 @@
 
+from django.db.models.query import QuerySet
 from django.http import FileResponse
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from django_filters import rest_framework as rest_filters
@@ -48,6 +49,14 @@ class RecipesViewSet(ModelViewSet):
     queryset = Recipes.objects.none()
     filterset_class = RecipesFilter
     permission_classes = [IsAdminOrReadOnly, IsAuthorOrReadOnly]
+
+    def get_queryset(self):
+        if self.kwargs:
+            return Recipes.objects.all()
+        queryset = self.queryset
+        if isinstance(queryset, QuerySet):
+            queryset = queryset.all()
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(
