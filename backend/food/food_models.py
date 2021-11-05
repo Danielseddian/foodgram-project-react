@@ -5,6 +5,7 @@ from .marks_models import Tags
 
 
 class Products(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(
         verbose_name="Название продукта",
         max_length=50,
@@ -29,9 +30,9 @@ class Products(models.Model):
 
 
 class Recipes(models.Model):
+    id = models.AutoField(primary_key=True)
     tags = models.ManyToManyField(
         Tags,
-        null=False,
         blank=False,
         related_name="tag",
     )
@@ -82,6 +83,7 @@ class Recipes(models.Model):
 
 
 class Ingredients(models.Model):
+    id = models.AutoField(primary_key=True)
     ingredient = models.ForeignKey(
         Products,
         verbose_name="Ингридиент",
@@ -91,7 +93,6 @@ class Ingredients(models.Model):
     )
     amount = models.PositiveIntegerField(
         verbose_name="Количество",
-        max_length=20,
         blank=False,
         null=False,
     )

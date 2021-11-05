@@ -3,13 +3,13 @@ from os.path import abspath, dirname, exists, join
 
 from dotenv import load_dotenv
 
+context_processors = "django.template.context_processors."
 contrib = "django.contrib."
+middleware = "django.middleware."
+pagination = "rest_framework.pagination."
+password_validation = contrib + "auth.password_validation."
 permissions = "rest_framework.permissions."
 throttling = "rest_framework.throttling."
-password_validation = contrib + "auth.password_validation."
-pagination = "rest_framework.pagination."
-middleware = "django.middleware."
-context_processors = "django.template.context_processors."
 
 BASE_DIR = dirname(dirname(abspath(__file__)))
 
@@ -25,6 +25,9 @@ django_apps = [
     contrib + "admin",
     contrib + "auth",
     "django_filters",
+    "corsheaders",
+    "rest_framework",
+    "rest_framework.authtoken",
 ]
 
 local_apps = [
@@ -35,9 +38,6 @@ local_apps = [
 ]
 
 others_apps = [
-    "rest_framework",
-    "corsheaders",
-    "rest_framework.authtoken",
     "djoser",
     "colorfield",
 ]
@@ -59,8 +59,8 @@ REST_FRAMEWORK = {
         throttling + "ScopedRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": "100/minute",
-        "anon": "10/minute",
+        "user": "10000/minute",
+        "anon": "100/minute",
     },
     "DEFAULT_PAGINATION_CLASS": pagination + "LimitOffsetPagination",
     "PAGE_SIZE": 10,

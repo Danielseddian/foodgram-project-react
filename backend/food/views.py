@@ -1,10 +1,13 @@
+
+from django.http import FileResponse
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from django_filters import rest_framework as rest_filters
 from rest_framework import permissions, status
-from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
                                    RetrieveModelMixin)
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .filters import RecipesFilter
@@ -25,19 +28,24 @@ class ListRetriveView(ListModelMixin, RetrieveModelMixin, GenericViewSet):
 class TagsViewSet(ListRetriveView):
     serializer_class = TagsSerializer
     queryset = Tags.objects.all()
+    pagination_class = None
+    filter_backends = [rest_filters.DjangoFilterBackend]
+    filterset_fields = ["name", "slug"]
     permission_classes = [permissions.AllowAny]
 
 
 class IngredientsViewSet(ListRetriveView):
-    serializer_class = IngredientsSerializer
     queryset = Products.objects.all()
+    serializer_class = IngredientsSerializer
+    pagination_class = None
+    filter_backends = [rest_filters.DjangoFilterBackend]
+    filterset_fields = ["name"]
     permission_classes = [permissions.AllowAny]
 
 
 class RecipesViewSet(ModelViewSet):
     serializer_class = RecipesSerializer
-    queryset = Recipes.objects.all()
-    pagination_class = LimitOffsetPagination
+    queryset = Recipes.objects.none()
     filterset_class = RecipesFilter
     permission_classes = [IsAdminOrReadOnly, IsAuthorOrReadOnly]
 
@@ -125,9 +133,24 @@ class FavoriteViewSet(GenericViewSet, CreateModelMixin):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class DownloadShoppingCart(GenericAPIView):
+class DownloadShoppingCart(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, *args, **kwargs):
-        queryset = self.request.user.buyer
-        print(queryset)
+        name = "products__ingredients__ingredient__name"
+        measurement = "products__ingredients__ingredient__measurement_unit"
+        amount = "products__ingredients__amount"
+        ingredients = self.request.user.buyer.values(name, measurement, amount)
+        products = {}
+        for ingredient in ingredients:
+            name, measurement, amount = ingredient.values()
+            product = name + f" ({measurement}) — "
+            if product in products:
+                products[product] += amount
+            else:
+                products[product] = amount
+        file_path = "media/shopping_cart.txt"
+        with open(file_path, "w") as cart:
+            for product in products:
+                cart.write(product + str(products[product]) + "\n")
+        return FileResponse(open(file_path, "rb"))

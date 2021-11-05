@@ -5,6 +5,7 @@ from .food_models import Recipes
 
 
 class ShoppingLists(models.Model):
+    id = models.AutoField(primary_key=True)
     buyer = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -39,6 +40,7 @@ class ShoppingLists(models.Model):
 
 
 class Favorites(models.Model):
+    id = models.AutoField(primary_key=True)
     admirer = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

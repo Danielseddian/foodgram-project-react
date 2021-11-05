@@ -3,6 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
+    id = models.AutoField(primary_key=True)
     email = models.EmailField(
         max_length=254,
         unique=True,
@@ -32,6 +33,7 @@ class User(AbstractUser):
 
 
 class Follow(models.Model):
+    id = models.AutoField(primary_key=True)
     following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
