@@ -1,7 +1,6 @@
 
 from django.db.models.query import QuerySet
 from django.http import FileResponse
-from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from django_filters import rest_framework as rest_filters
 from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
@@ -11,13 +10,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
+from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+
 from .filters import RecipesFilter
 from .food_models import Ingredients, Products, Recipes
+from .food_serializers import (IngredientSerializer, RecipeAddedSerializer,
+                               RecipesSerializer)
+from .lists_serializers import FavoriteSerializer, ShoppingListSerializer
 from .marks_models import Tags
-from .serializers import (FavoriteCreateDestroySerializer,
-                          IngredientsSerializer, RecipeAddSerializer,
-                          RecipesSerializer,
-                          ShoppingListCreateDestroySerializer, TagsSerializer)
+from .marks_serializers import TagsSerializer
 
 HAS_NOT_INGREDIENT = "В базе данных нет ингредиента с id {id}"
 
@@ -37,7 +38,7 @@ class TagsViewSet(ListRetriveView):
 
 class IngredientsViewSet(ListRetriveView):
     queryset = Products.objects.all()
-    serializer_class = IngredientsSerializer
+    serializer_class = IngredientSerializer
     pagination_class = None
     filter_backends = [rest_filters.DjangoFilterBackend]
     filterset_fields = ["name"]
@@ -89,7 +90,7 @@ class RecipesViewSet(ModelViewSet):
 
 
 class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
-    serializer_class = ShoppingListCreateDestroySerializer
+    serializer_class = ShoppingListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -103,7 +104,7 @@ class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_view_serializer(self, *args, **kwargs):
-        serializer_class = RecipeAddSerializer
+        serializer_class = RecipeAddedSerializer
         kwargs.setdefault("context", self.get_serializer_context())
         return serializer_class(*args, **kwargs)
 
@@ -116,7 +117,7 @@ class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
 
 
 class FavoriteViewSet(GenericViewSet, CreateModelMixin):
-    serializer_class = FavoriteCreateDestroySerializer
+    serializer_class = FavoriteSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -130,7 +131,7 @@ class FavoriteViewSet(GenericViewSet, CreateModelMixin):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_view_serializer(self, *args, **kwargs):
-        serializer_class = RecipeAddSerializer
+        serializer_class = RecipeAddedSerializer
         kwargs.setdefault("context", self.get_serializer_context())
         return serializer_class(*args, **kwargs)
 
@@ -158,7 +159,7 @@ class DownloadShoppingCart(APIView):
                 products[product] += amount
             else:
                 products[product] = amount
-        file_path = "media/shopping_cart.txt"
+        file_path = "documents/shopping_cart.txt"
         with open(file_path, "w") as cart:
             for product in products:
                 cart.write(product + str(products[product]) + "\n")

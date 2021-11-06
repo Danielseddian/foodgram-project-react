@@ -152,13 +152,13 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_URLS_REGEX = r"^/api/.*$"
 
-STATIC_URL = "/static/"
+STATIC_URL = "/back_static/"
 
-STATIC_ROOT = join(BASE_DIR, "static")
+STATIC_ROOT = join(BASE_DIR, "back_static/")
 
-MEDIA_URL = "/media/"
+MEDIA_URL = "/back_media/"
 
-MEDIA_ROOT = join(BASE_DIR, "media")
+MEDIA_ROOT = join(BASE_DIR, "back_media/")
 
 SECRET_KEY = environ.get("SECRET_KEY", "some_secret_key")
 

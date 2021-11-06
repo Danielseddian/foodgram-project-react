@@ -1,13 +1,9 @@
 from django.urls import include, path, re_path
-from food.views import (
-    ChangeShoppingListViewSet,
-    FavoriteViewSet,
-    IngredientsViewSet,
-    RecipesViewSet,
-    TagsViewSet,
-    DownloadShoppingCart,
-)
 from rest_framework.routers import DefaultRouter
+
+from food.views import (ChangeShoppingListViewSet, DownloadShoppingCart,
+                        FavoriteViewSet, IngredientsViewSet, RecipesViewSet,
+                        TagsViewSet)
 from users.views import FollowChangeSet, FollowViewSet
 
 router = DefaultRouter()
