@@ -1,4 +1,4 @@
-
+from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from django.db.models.query import QuerySet
 from django.http import FileResponse
 from django_filters import rest_framework as rest_filters
@@ -10,11 +10,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
-
 from .filters import RecipesFilter
 from .food_models import Ingredients, Products, Recipes
-from .food_serializers import (IngredientSerializer, RecipeAddedSerializer,
+from .food_serializers import (ProductsSerializer, RecipeAddSerializer,
                                RecipesSerializer)
 from .lists_serializers import FavoriteSerializer, ShoppingListSerializer
 from .marks_models import Tags
@@ -38,7 +36,7 @@ class TagsViewSet(ListRetriveView):
 
 class IngredientsViewSet(ListRetriveView):
     queryset = Products.objects.all()
-    serializer_class = IngredientSerializer
+    serializer_class = ProductsSerializer
     pagination_class = None
     filter_backends = [rest_filters.DjangoFilterBackend]
     filterset_fields = ["name"]
@@ -59,29 +57,30 @@ class RecipesViewSet(ModelViewSet):
             queryset = queryset.all()
         return queryset
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
+        ingredients = [
+            [
+                get_object_or_404(Products, id=ingredient["id"]),
+                ingredient["amount"],
+            ]
+            for ingredient in request.data["ingredients"]
+        ]
+        serializer = RecipeAddSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         serializer.save(
             tags=self.request.data["tags"],
             author=self.request.user,
         )
-
-    def create(self, request, *args, **kwargs):
-        [
-            get_object_or_404(Products, id=ingredient["id"])
-            for ingredient in request.data["ingredients"]
-        ]
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        recipe_id = serializer.data["id"]
-        for ingredient in request.data["ingredients"]:
+        recipe = get_object_or_404(Recipes, id=serializer.data["id"])
+        for ingredient in ingredients:
+            product, amount = ingredient
             Ingredients.objects.create(
-                recipe=get_object_or_404(Recipes, id=recipe_id),
-                ingredient=get_object_or_404(Products, id=ingredient["id"]),
-                amount=ingredient["amount"],
+                recipe=recipe,
+                ingredient=product,
+                amount=amount,
             )
         headers = self.get_success_headers(serializer.data)
-        recipe = self.get_serializer(get_object_or_404(Recipes, id=recipe_id))
+        recipe = self.get_serializer(recipe)
         return Response(
             recipe.data,
             status=status.HTTP_201_CREATED,
@@ -104,7 +103,7 @@ class ChangeShoppingListViewSet(GenericViewSet, CreateModelMixin):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_view_serializer(self, *args, **kwargs):
-        serializer_class = RecipeAddedSerializer
+        serializer_class = RecipeAddSerializer
         kwargs.setdefault("context", self.get_serializer_context())
         return serializer_class(*args, **kwargs)
 
@@ -131,7 +130,7 @@ class FavoriteViewSet(GenericViewSet, CreateModelMixin):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_view_serializer(self, *args, **kwargs):
-        serializer_class = RecipeAddedSerializer
+        serializer_class = RecipeAddSerializer
         kwargs.setdefault("context", self.get_serializer_context())
         return serializer_class(*args, **kwargs)
 
