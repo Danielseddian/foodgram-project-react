@@ -158,7 +158,7 @@ class DownloadShoppingCart(APIView):
                 products[product] += amount
             else:
                 products[product] = amount
-        file_path = "documents/shopping_cart.txt"
+        file_path = "shopping_cart.txt"
         with open(file_path, "w") as cart:
             for product in products:
                 cart.write(product + str(products[product]) + "\n")
