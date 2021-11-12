@@ -12,8 +12,8 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .filters import RecipesFilter
 from .food_models import Ingredients, Products, Recipes
-from .food_serializers import (ProductsSerializer, RecipeAddSerializer,
-                               RecipesSerializer)
+from .food_serializers import (GetRecipesSerializer, ProductsSerializer,
+                               RecipeAddSerializer)
 from .lists_serializers import FavoriteSerializer, ShoppingListSerializer
 from .marks_models import Tags
 from .marks_serializers import TagsSerializer
@@ -44,7 +44,6 @@ class IngredientsViewSet(ListRetriveView):
 
 
 class RecipesViewSet(ModelViewSet):
-    serializer_class = RecipesSerializer
     queryset = Recipes.objects.none()
     filterset_class = RecipesFilter
     permission_classes = [IsAdminOrReadOnly, IsAuthorOrReadOnly]
@@ -57,6 +56,11 @@ class RecipesViewSet(ModelViewSet):
             queryset = queryset.all()
         return queryset
 
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return GetRecipesSerializer
+        return RecipeAddSerializer
+
     def create(self, request, *args, **kwargs):
         ingredients = [
             [
@@ -65,7 +69,7 @@ class RecipesViewSet(ModelViewSet):
             ]
             for ingredient in request.data["ingredients"]
         ]
-        serializer = RecipeAddSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(
             tags=self.request.data["tags"],

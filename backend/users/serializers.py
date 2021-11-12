@@ -60,14 +60,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
 
 
-class RecipesSerializer(serializers.ModelSerializer):
+class GetRecipesSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("id", "name", "image", "cooking_time")
         model = Recipes
 
 
 class FollowSerializer(UserSerializer):
-    recipes = RecipesSerializer(read_only=True, many=True, source="author")
+    recipes = GetRecipesSerializer(read_only=True, many=True, source="author")
 
     class Meta:
         fields = (
