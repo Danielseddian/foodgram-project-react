@@ -1,4 +1,10 @@
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from base64 import b64decode
+from uuid import uuid4
+from os.path import join
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from foodgram.settings import MEDIA_ROOT
 from django.db.models.query import QuerySet
 from django.http import FileResponse
 from django_filters import rest_framework as rest_filters
@@ -18,6 +24,7 @@ from .lists_serializers import FavoriteSerializer, ShoppingListSerializer
 from .marks_models import Tags
 from .marks_serializers import TagsSerializer
 
+BASE64 = ";base64,"
 HAS_NOT_INGREDIENT = "В базе данных нет ингредиента с id {id}"
 
 
@@ -59,16 +66,38 @@ class RecipesViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == "GET":
             return GetRecipesSerializer
+        image = self.request.data["image"]
+        if BASE64 in image:
+            self.request.data[u"image"] = self.get_image_from_base64(image)
         return RecipeAddSerializer
 
+    def get_image_from_base64(self, picture):
+        try:
+            extantion, base = picture.split(BASE64)
+            extantion = "." + extantion.split("/")[-1]
+            extantion = extantion if extantion != ".jpeg" else ".jpg"
+            base = BytesIO(b64decode(base))
+        except TypeError:
+            raise("Изображение не соответствует")
+        file_name = join(MEDIA_ROOT, str(uuid4())[:12] + extantion)
+        return InMemoryUploadedFile(
+            base,
+            field_name="image",
+            name=file_name,
+            content_type="image/jpeg",
+            size=len(base.getvalue()),
+            charset=None,
+        )
+
     def create(self, request, *args, **kwargs):
-        ingredients = [
-            [
-                get_object_or_404(Products, id=ingredient["id"]),
-                ingredient["amount"],
-            ]
-            for ingredient in request.data["ingredients"]
-        ]
+        ingredients = {}
+        for ingredient in request.data["ingredients"]:
+            product = get_object_or_404(Products, id=ingredient["id"])
+            amount = ingredient["amount"]
+            if product in ingredients:
+                ingredients[product] += amount
+            else:
+                ingredients[product] = amount
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(
@@ -77,10 +106,10 @@ class RecipesViewSet(ModelViewSet):
         )
         recipe = get_object_or_404(Recipes, id=serializer.data["id"])
         for ingredient in ingredients:
-            product, amount = ingredient
+            amount = ingredients[ingredient]
             Ingredients.objects.create(
                 recipe=recipe,
-                ingredient=product,
+                ingredient=ingredient,
                 amount=amount,
             )
         headers = self.get_success_headers(serializer.data)

@@ -1,8 +1,6 @@
-
-from drf_extra_fields.fields import Base64ImageField
 from foodgram.settings import STATIC_ROOT
 from rest_framework.serializers import (CharField, ModelSerializer,
-                                        SerializerMethodField)
+                                        SerializerMethodField, ImageField)
 from users.serializers import UserSerializer
 
 from .food_models import Ingredients, Products, Recipes
@@ -77,7 +75,7 @@ class GetRecipesSerializer(ModelSerializer):
 
 class RecipeAddSerializer(GetRecipesSerializer):
     author = UserSerializer(read_only=True)
-    image = Base64ImageField()
+    image = ImageField()
 
     class Meta:
         fields = [
