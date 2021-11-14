@@ -1,13 +1,5 @@
 version: '3.7'
 services:
-
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    volumes:
-      - ../frontend/:/app/result_build/
-
   db:
     image: postgres:12.4
     restart: always
@@ -15,8 +7,6 @@ services:
       - ../backend/postgres_data:/var/lib/postgresql/data/
     env_file:
       - ../backend/.env
-    depends_on:
-      - frontend
 
   web:
     build:
@@ -25,11 +15,21 @@ services:
     restart: always
     volumes:
       - ../backend/static_value:/code/back_static/
-      - ../backend/media_value:/code/back_media/
+      - ../backend/media_value:/code/media/
     depends_on:
       - db
     env_file:
       - ../backend/.env
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ../frontend/:/app/result_build/
+    depends_on:
+      - web
+
 
   nginx:
     image: nginx:1.19.3
@@ -42,9 +42,9 @@ services:
       - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
       - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
       - ../backend/static_value:/var/html/back_static/
-      - ../backend/media_value:/var/html/back_media/
+      - ../backend/media_value:/var/html/media/
     depends_on:
-      - web
+      - frontend
 
 volumes:
   postgres_data:

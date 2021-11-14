@@ -1,13 +1,11 @@
 from base64 import b64decode
 from io import BytesIO
-from os.path import join
 from uuid import uuid4
 
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
 from django_filters import rest_framework as rest_filters
-from foodgram.settings import MEDIA_ROOT
 from rest_framework import permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -17,8 +15,11 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .filters import RecipesFilter
 from .food_models import Ingredients, Products, Recipes
-from .food_serializers import (GetRecipesSerializer, ProductsSerializer,
-                               RecipeAddSerializer)
+from .food_serializers import (
+    GetRecipesSerializer,
+    ProductsSerializer,
+    RecipeAddSerializer,
+)
 
 BASE64 = ";base64,"
 
@@ -52,17 +53,24 @@ class RecipesViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == "GET":
             return GetRecipesSerializer
+        try:
+            image = self.request.data["image"]
+            self.request.data["image"] = (
+                self.get_base64_image(image) if BASE64 in image else image
+            )
+        except KeyError:
+            None
         return RecipeAddSerializer
 
-    def get_image_from_base64(self, picture):
+    def get_base64_image(self, picture):
         try:
             extantion, base = picture.split(BASE64)
             extantion = "." + extantion.split("/")[-1]
             extantion = extantion if extantion != ".jpeg" else ".jpg"
             base = BytesIO(b64decode(base))
         except TypeError:
-            raise("Изображение не соответствует")
-        file_name = join(MEDIA_ROOT, str(uuid4())[:12] + extantion)
+            raise ("Изображение не соответствует")
+        file_name = str(uuid4())[:12] + extantion
         return InMemoryUploadedFile(
             base,
             field_name="image",
@@ -99,9 +107,7 @@ class RecipesViewSet(ModelViewSet):
         if updating:
             Ingredients.objects.bulk_update(updating, ["amount"])
         Ingredients.objects.bulk_create(adding) if adding else None
-        ingredients.filter(recipe=recipe).exclude(
-            ingredient__id__in=amounts
-        ).delete()
+        ingredients.exclude(ingredient__id__in=amounts).delete()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

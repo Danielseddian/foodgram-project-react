@@ -1,5 +1,3 @@
-# from drf_extra_fields.fields import Base64ImageField
-from foodgram.settings import MEDIA_URL
 from rest_framework.serializers import (CharField, ModelSerializer,
                                         SerializerMethodField, ImageField)
 from users.serializers import UserSerializer
@@ -67,7 +65,7 @@ class GetRecipesSerializer(ModelSerializer):
         return is_in_shopping_cart
 
     def get_image(self, obj):
-        return MEDIA_URL + obj.image.name
+        return obj.image.url
 
 
 class RecipeAddSerializer(GetRecipesSerializer):
