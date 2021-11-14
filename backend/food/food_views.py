@@ -72,7 +72,7 @@ class RecipesViewSet(ModelViewSet):
         if updating:
             Ingredients.objects.bulk_update(updating, ["amount"])
         Ingredients.objects.bulk_create(adding) if adding else None
-        Ingredients.objects.filter(recipe=recipe).exclude(
+        ingredients.filter(recipe=recipe).exclude(
             ingredient__id__in=amounts
         ).delete()
 
