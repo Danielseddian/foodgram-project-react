@@ -93,6 +93,10 @@ class ProductsAdmin(admin.ModelAdmin):
     empty_value_display = "-пусто-"
 
 
+class IngredientsInLine(admin.TabularInline):
+    model = Ingredients
+
+
 @admin.register(Recipes)
 class RecipesAdmin(admin.ModelAdmin):
     list_display = (
@@ -103,6 +107,7 @@ class RecipesAdmin(admin.ModelAdmin):
         "text",
         "cooking_time",
     )
+    inlines = [IngredientsInLine]
     search_fields = ()
     list_filter = ()
     empty_value_display = "-пусто-"

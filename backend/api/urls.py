@@ -1,7 +1,8 @@
 from django.urls import include, path, re_path
-from food.views import (ChangeShoppingListViewSet, DownloadShoppingCart,
-                        FavoriteViewSet, IngredientsViewSet, RecipesViewSet,
-                        TagsViewSet)
+from food.food_views import IngredientsViewSet, RecipesViewSet
+from food.lists_views import (ChangeShoppingListViewSet, DownloadShoppingCart,
+                              FavoriteViewSet)
+from food.marks_views import TagsViewSet
 from rest_framework.routers import DefaultRouter
 from users.views import FollowChangeSet, FollowViewSet
 

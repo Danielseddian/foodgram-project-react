@@ -1,6 +1,7 @@
-from foodgram.settings import STATIC_ROOT
+from drf_extra_fields.fields import Base64ImageField
+from foodgram.settings import MEDIA_URL
 from rest_framework.serializers import (CharField, ModelSerializer,
-                                        SerializerMethodField, ImageField)
+                                        SerializerMethodField)
 from users.serializers import UserSerializer
 
 from .food_models import Ingredients, Products, Recipes
@@ -15,6 +16,7 @@ class ProductsSerializer(ModelSerializer):
 
 
 class IngredientSerializer(ModelSerializer):
+    id = CharField(read_only=True, source="ingredient.id")
     name = CharField(read_only=True, source="ingredient.name")
     measurement_unit = CharField(
         read_only=True,
@@ -22,12 +24,7 @@ class IngredientSerializer(ModelSerializer):
     )
 
     class Meta:
-        fields = (
-            "id",
-            "name",
-            "measurement_unit",
-            "amount",
-        )
+        fields = "__all__"
         model = Ingredients
 
 
@@ -70,21 +67,13 @@ class GetRecipesSerializer(ModelSerializer):
         return is_in_shopping_cart
 
     def get_image(self, obj):
-        return STATIC_ROOT + obj.image.name
+        return MEDIA_URL + obj.image.name
 
 
 class RecipeAddSerializer(GetRecipesSerializer):
     author = UserSerializer(read_only=True)
-    image = ImageField()
+    image = Base64ImageField()
 
     class Meta:
-        fields = [
-            "id",
-            "tags",
-            "name",
-            "image",
-            "cooking_time",
-            "text",
-            "author",
-        ]
+        fields = "__all__"
         model = Recipes
