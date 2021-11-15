@@ -5,21 +5,16 @@ from uuid import uuid4
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
-from django_filters import rest_framework as rest_filters
-from rest_framework import permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from .filters import RecipesFilter
+from .filters import IngredientsFilter, RecipesFilter
 from .food_models import Ingredients, Products, Recipes
-from .food_serializers import (
-    GetRecipesSerializer,
-    ProductsSerializer,
-    RecipeAddSerializer,
-)
+from .food_serializers import (GetRecipesSerializer, ProductsSerializer,
+                               RecipeAddSerializer)
 
 BASE64 = ";base64,"
 
@@ -28,13 +23,12 @@ class ListRetriveView(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     pass
 
 
-class IngredientsViewSet(ListRetriveView):
+class IngredientsViewSet(ModelViewSet):
     queryset = Products.objects.all()
     serializer_class = ProductsSerializer
     pagination_class = None
-    filter_backends = [rest_filters.DjangoFilterBackend]
-    filterset_fields = ["name"]
-    permission_classes = [permissions.AllowAny]
+    filterset_class = IngredientsFilter
+    permission_classes = [IsAdminOrReadOnly]
 
 
 class RecipesViewSet(ModelViewSet):

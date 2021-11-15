@@ -1,5 +1,5 @@
-from rest_framework.serializers import (CharField, ModelSerializer,
-                                        SerializerMethodField, ImageField)
+from rest_framework.serializers import (CharField, ImageField, ModelSerializer,
+                                        SerializerMethodField)
 from users.serializers import UserSerializer
 
 from .food_models import Ingredients, Products, Recipes
