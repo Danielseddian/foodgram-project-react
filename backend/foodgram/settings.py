@@ -75,7 +75,10 @@ DJOSER = {
         "user_create": "users.serializers.UserCreateSerializer",
         "current_user": "users.serializers.UserSerializer",
     },
-    "PERMISSIONS": {"user_list": [permissions + "AllowAny"]},
+    "PERMISSIONS": {
+        "user_list": [permissions + "AllowAny"],
+        "user": ["djoser.permissions.CurrentUserOrAdminOrReadOnly"],
+    },
     "LOGIN_FIELD": "email",
     "HIDE_USERS": False,
 }

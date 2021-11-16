@@ -1,3 +1,4 @@
+from rest_framework.fields import SerializerMethodField
 from food.food_models import Recipes
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -39,12 +40,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
+        extra_kwargs = {"password": {"write_only": True}}
         fields = (
             "email",
             "id",
             "username",
             "first_name",
             "last_name",
+            "password",
         )
         model = User
 
@@ -61,13 +64,19 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 
 class GetRecipesSerializer(serializers.ModelSerializer):
+    image = SerializerMethodField()
+
     class Meta:
         fields = ("id", "name", "image", "cooking_time")
         model = Recipes
 
+    def get_image(self, obj):
+        return obj.image.url
+
 
 class FollowSerializer(UserSerializer):
-    recipes = GetRecipesSerializer(read_only=True, many=True, source="author")
+    recipes = SerializerMethodField()
+    recipes_count = SerializerMethodField()
 
     class Meta:
         fields = (
@@ -78,8 +87,18 @@ class FollowSerializer(UserSerializer):
             "last_name",
             "is_subscribed",
             "recipes",
+            "recipes_count",
         )
         model = User
+
+    def get_recipes(self, obj, limit="recipes_limit"):
+        params = self.context["request"].query_params
+        recipes = Recipes.objects.filter(author=obj)
+        recipes = recipes[:int(params[limit])] if limit in params else recipes
+        return GetRecipesSerializer(recipes, many=True).data
+
+    def get_recipes_count(self, obj):
+        return Recipes.objects.filter(author=obj).count()
 
 
 class FollowCreateDestroySerializer(serializers.ModelSerializer):

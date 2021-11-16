@@ -31,6 +31,8 @@ class RecipesFilter(filters.FilterSet):
         return queryset
 
     def get_taged_recipes(self, queryset, name, tags):
+        """Пустой список, чтобы без тегов ничего не отображалось, заменяется и
+        и фильтруется по тегам или фильтруется список от других фильтров"""
         queryset = (
             queryset.filter(tags__slug__in=tags).distinct("pk")
             if queryset
