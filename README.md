@@ -5,15 +5,7 @@
 Python, Django, Django Rest-Framework, Docker, Postgres, Nginx
 
 ### Для запуска потребуется:
-- Создать и запустить виртуальное окружение:
-```bash
-python -m venv venv
-. venv/bin/activate
-```
-- Установить зависимости из файла requirements.txt
-```bash
-pip install -r requirements.txt
-```
+
 - Создать файл .env в корневой директории проекта и добавить переменные:
 ```
     DB_ENGINE=<СУБД проекта>
@@ -30,7 +22,7 @@ pip install -r requirements.txt
 ```bash
 docker-compose up -d
 ```
-- Миграции и сбор статики выполняются при сборке образа.
+- Установка необходимых приложений, миграции и сбор статики выполняются при сборке образа.
 ```
 - Задать суперпользователя:
 ```bash
@@ -49,7 +41,7 @@ git clone https://<USERNAME>:<PASSWORD>@github.com/Danielseddian/foodgram-projec
 ```
 - Копиование образа с DockerHub:
 ```bash
-docker pull danielseddian/yamdb_final
+docker pull danielseddian/foodgram_final
 ```
 
 _Redoc проекта с инструкцией для доступа к API сервера: http://www.webtodo.xyz/api/docs/redoc/_
