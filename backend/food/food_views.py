@@ -16,7 +16,8 @@ from .food_models import Ingredients, Products, Recipes
 from .food_serializers import (GetRecipesSerializer, ProductsSerializer,
                                RecipeAddSerializer)
 
-MISSING_AMOUNT = "Так ничего не приготовить — требуется больше ингредиента"
+MISSING_AMOUNT = "Так ничего не приготовить — требуется больше ингредиента."
+MISSING_INGREDIENT = "Необходим хоть один ингредиет."
 BASE64 = ";base64,"
 WRONG_PRODUCT = "Такого ингредиента пока нет, но, возможно, скоро появится."
 WRONG_IMAGE_TYPE = "Изображение не соответствует"
@@ -75,6 +76,8 @@ class RecipesViewSet(ModelViewSet):
 
     def validate_ingredients(self, data):
         amounts = {}
+        if not data:
+            raise ValidationError(MISSING_INGREDIENT)
         for ingredient in data:
             amount = int(ingredient["amount"])
             if amount < 1:
@@ -124,6 +127,8 @@ class RecipesViewSet(ModelViewSet):
         return Response(recipe.data, status=HTTP_201_CREATED, headers=headers)
 
     def update(self, request, *args, **kwargs):
+        data = request.data
+        amounts, products = self.validate_ingredients(data["ingredients"])
         recipe = get_object_or_404(Recipes, id=kwargs["pk"])
-        self.create_or_update_ingredients(request.data["ingredients"], recipe)
+        self.create_or_update_ingredients(amounts, products, recipe)
         return super().update(request, *args, **kwargs)

@@ -42,7 +42,7 @@ class GetRecipesSerializer(ModelSerializer):
         model = Recipes
 
     def check_is_favorite(self, obj):
-        admirer = self.context["request"].user
+        admirer = self.context.get("request").user
         favorite = (
             True
             if admirer.is_authenticated
@@ -55,7 +55,7 @@ class GetRecipesSerializer(ModelSerializer):
         return favorite
 
     def check_is_in_shopping_cart(self, obj):
-        buyer = self.context["request"].user
+        buyer = self.context.get("request").user
         is_in_shopping_cart = (
             True
             if buyer.is_authenticated
@@ -80,6 +80,7 @@ class RecipeAddSerializer(GetRecipesSerializer):
         model = Recipes
 
     def validate(self, data):
-        if self.context["request"].data["cooking_time"] < 1:
+        context = self.context.get("request")
+        if int(context.data.get("cooking_time")) < 1:
             raise ValidationError(LITTLE_TIME)
         return super().validate(data)
