@@ -7,7 +7,9 @@ Python, Django, Django Rest-Framework, Docker, Postgres, Nginx
 ### Для запуска потребуется:
 
 - Создать файл .env в корневой директории проекта и добавить переменные:
-```
+```bash
+sudo nano .env
+
     DB_ENGINE=<СУБД проекта>
     DB_NAME=<название СУБД>
     POSTGRES_USER=<имя пользователя СУБД>
@@ -18,7 +20,7 @@ Python, Django, Django Rest-Framework, Docker, Postgres, Nginx
     ALLOWED_HOSTS=<разрешённые сервера проекта>
     DEBUG=<False - для рабочего режима, True - для режима отладки>
 ```
-- В папке Infra в разделе с проектом выполнить команду:
+- В папке infra в разделе с проектом выполнить команду:
 ```bash
 docker-compose up -d
 ```
@@ -37,7 +39,7 @@ pip install docker-compose
 ```
 - Клонирование с GitHub:
 ```bash
-git clone https://<USERNAME>:<PASSWORD>@github.com/Danielseddian/foodgram-project-react
+git clone https://<имя_пользователя_на_github>:<пароль>@github.com/Danielseddian/foodgram-project-react
 ```
 - Копиование образа с DockerHub:
 ```bash
