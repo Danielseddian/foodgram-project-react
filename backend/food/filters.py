@@ -31,17 +31,10 @@ class RecipesFilter(filters.FilterSet):
         return queryset
 
     def get_taged_recipes(self, queryset, name, tags):
-        """Пустой список, чтобы без тегов ничего не отображалось, заменяется и
-        и фильтруется по тегам или фильтруется список от других фильтров"""
-        queryset = (
-            queryset.filter(tags__slug__in=tags).distinct("pk")
-            if queryset
-            else Recipes.objects.filter(tags__slug__in=tags).distinct("pk")
-        )
-        return queryset
+        return queryset.filter(tags__slug__in=tags).distinct("pk")
 
     def get_user_recipes(self, queryset, name, pk):
-        return Recipes.objects.filter(author__id__in=pk)
+        return queryset.filter(author__id__in=pk)
 
 
 class IngredientsFilter(filters.FilterSet):

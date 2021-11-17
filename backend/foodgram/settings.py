@@ -62,8 +62,8 @@ REST_FRAMEWORK = {
         "user": "10000/minute",
         "anon": "100/minute",
     },
-    "DEFAULT_PAGINATION_CLASS": pagination + "LimitOffsetPagination",
-    "PAGE_SIZE": 10,
+    "DEFAULT_PAGINATION_CLASS": pagination + "PageNumberPagination",
+    'PAGE_SIZE': 6,
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
     ],

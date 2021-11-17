@@ -1,7 +1,7 @@
-from rest_framework.fields import SerializerMethodField
 from food.food_models import Recipes
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import SerializerMethodField
 from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Follow, User

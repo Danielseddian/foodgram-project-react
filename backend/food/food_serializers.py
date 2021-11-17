@@ -1,12 +1,13 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (CharField, ImageField, ModelSerializer,
-                                        SerializerMethodField, ValidationError)
+                                        SerializerMethodField)
 from users.serializers import UserSerializer
 
 from .food_models import Ingredients, Products, Recipes
 from .lists_models import Favorites, ShoppingLists
 from .marks_serializers import TagsSerializer
 
-LITTLE_TIME = "На всё нужно время."
+LITTLE_TIME = "На всё требуется время. Хотя бы одна минута"
 
 
 class ProductsSerializer(ModelSerializer):
@@ -74,12 +75,11 @@ class RecipeAddSerializer(GetRecipesSerializer):
     author = UserSerializer(read_only=True)
     image = ImageField()
 
-    def validate(self, data):
-        for ingredient in self.context['request'].data['ingredients']:
-            if int(ingredient['amount']) < 1:
-                raise ValidationError(LITTLE_TIME)
-        return data
-
     class Meta:
         fields = "__all__"
         model = Recipes
+
+    def validate(self, data):
+        if self.context["request"].data["cooking_time"] < 1:
+            raise ValidationError(LITTLE_TIME)
+        return super().validate(data)

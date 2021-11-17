@@ -23,7 +23,7 @@ class Products(models.Model):
     class Meta:
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
-        ordering = ("pk",)
+        ordering = ("name",)
 
     def __str__(self):
         return f"Наименование: {self.name} ({self.measurement_unit})"
@@ -73,7 +73,7 @@ class Recipes(models.Model):
     class Meta:
         verbose_name = "Рецепт"
         verbose_name_plural = "Рецепты"
-        ordering = ("pk",)
+        ordering = ("-pk",)
 
     def __str__(self):
         return (
@@ -107,7 +107,7 @@ class Ingredients(models.Model):
     class Meta:
         verbose_name = "Ингридиент"
         verbose_name_plural = "Ингридиенты"
-        ordering = ("pk",)
+        ordering = ("ingredient__name",)
         constraints = [
             models.UniqueConstraint(
                 fields=["ingredient", "recipe"],

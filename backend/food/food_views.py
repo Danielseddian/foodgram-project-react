@@ -7,6 +7,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.viewsets import ModelViewSet
 
@@ -15,7 +16,10 @@ from .food_models import Ingredients, Products, Recipes
 from .food_serializers import (GetRecipesSerializer, ProductsSerializer,
                                RecipeAddSerializer)
 
+MISSING_AMOUNT = "Так ничего не приготовить — требуется больше ингредиента"
 BASE64 = ";base64,"
+WRONG_PRODUCT = "Такого ингредиента пока нет, но, возможно, скоро появится."
+WRONG_IMAGE_TYPE = "Изображение не соответствует"
 
 
 class IngredientsViewSet(ModelViewSet):
@@ -27,14 +31,14 @@ class IngredientsViewSet(ModelViewSet):
 
 
 class RecipesViewSet(ModelViewSet):
-    queryset = Recipes.objects.none()
+    queryset = Recipes.objects.all()
     filterset_class = RecipesFilter
     permission_classes = [IsAdminOrReadOnly, IsAuthorOrReadOnly]
 
     def get_queryset(self):
-        if self.kwargs:
-            return Recipes.objects.all()
         queryset = self.queryset
+        if "tags" not in self.request.query_params and not self.kwargs:
+            return queryset.none()
         if isinstance(queryset, QuerySet):
             queryset = queryset.all()
         return queryset
@@ -58,7 +62,7 @@ class RecipesViewSet(ModelViewSet):
             extantion = extantion if extantion != ".jpeg" else ".jpg"
             base = BytesIO(b64decode(base))
         except TypeError:
-            raise ("Изображение не соответствует")
+            raise ValidationError(WRONG_IMAGE_TYPE)
         file_name = str(uuid4())[:12] + extantion
         return InMemoryUploadedFile(
             base,
@@ -69,18 +73,27 @@ class RecipesViewSet(ModelViewSet):
             charset=None,
         )
 
-    def create_or_update_ingredients(self, ingredients_request, recipe):
+    def validate_ingredients(self, data):
         amounts = {}
-        for ingredient in ingredients_request:
-            pk = int(ingredient["id"])
+        for ingredient in data:
             amount = int(ingredient["amount"])
+            if amount < 1:
+                raise ValidationError(MISSING_AMOUNT)
+            pk = int(ingredient["id"])
             amounts[pk] = amounts[pk] + amount if pk in amounts else amount
+        products = Products.objects.filter(id__in=amounts)
+        values = [pk["id"] for pk in products.values("id")]
+        if amounts.keys() - values:
+            raise ValidationError(WRONG_PRODUCT)
+        return amounts, products
+
+    def create_or_update_ingredients(self, amounts, products, recipe):
         key = "ingredient__id"
         ingredients = Ingredients.objects.filter(recipe=recipe)
         values = [pk[key] for pk in ingredients.values(key)]
         adding = []
         updating = []
-        for product in Products.objects.filter(id__in=amounts):
+        for product in products:
             product_id = product.id
             if product_id in values:
                 ingredient = ingredients.get(ingredient__id=product_id)
@@ -99,11 +112,13 @@ class RecipesViewSet(ModelViewSet):
         ingredients.exclude(ingredient__id__in=amounts).delete()
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        data = request.data
+        amounts, products = self.validate_ingredients(data["ingredients"])
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save(tags=request.data["tags"], author=request.user)
         recipe = Recipes.objects.get(id=serializer.data["id"])
-        self.create_or_update_ingredients(request.data["ingredients"], recipe)
+        self.create_or_update_ingredients(amounts, products, recipe)
         headers = self.get_success_headers(serializer.data)
         recipe = self.get_serializer(recipe)
         return Response(recipe.data, status=HTTP_201_CREATED, headers=headers)
