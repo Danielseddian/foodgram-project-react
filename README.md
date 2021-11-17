@@ -4,7 +4,7 @@
 ### Технологии backend:
 Python, Django, Django Rest-Framework, Docker, Postgres, Nginx
 
-###Для запуска потребуется:
+### Для запуска потребуется:
 - Создать и запустить виртуальное окружение:
 ```bash
 python -m venv venv
