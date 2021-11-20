@@ -31,8 +31,8 @@ django_apps = [
 ]
 
 local_apps = [
-    "users",
-    "food",
+    "api.users",
+    "api.food",
     "foodgram",
     "api",
 ]
@@ -63,7 +63,7 @@ REST_FRAMEWORK = {
         "anon": "100/minute",
     },
     "DEFAULT_PAGINATION_CLASS": pagination + "PageNumberPagination",
-    'PAGE_SIZE': 6,
+    "PAGE_SIZE": 6,
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
     ],
@@ -71,9 +71,9 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     "SERIALIZERS": {
-        "user": "users.serializers.UserSerializer",
-        "user_create": "users.serializers.UserCreateSerializer",
-        "current_user": "users.serializers.UserSerializer",
+        "user": "api.users.serializers.UserSerializer",
+        "user_create": "api.users.serializers.UserCreateSerializer",
+        "current_user": "api.users.serializers.UserSerializer",
     },
     "PERMISSIONS": {
         "user_list": [permissions + "AllowAny"],

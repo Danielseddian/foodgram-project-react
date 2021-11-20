@@ -1,10 +1,11 @@
 from django.urls import include, path, re_path
-from food.food_views import IngredientsViewSet, RecipesViewSet
-from food.lists_views import (ChangeShoppingListViewSet, DownloadShoppingCart,
-                              FavoriteViewSet)
-from food.marks_views import TagsViewSet
 from rest_framework.routers import DefaultRouter
-from users.views import FollowChangeSet, FollowViewSet
+
+from .food.food_views import IngredientViewSet, RecipeViewSet
+from .food.lists_views import (ChangeShoppingListViewSet, DownloadShoppingCart,
+                               FavoriteViewSet)
+from .food.marks_views import TagViewSet
+from .users.views import FollowChangeSet, FollowViewSet
 
 router = DefaultRouter()
 router.register("users/subscriptions", FollowViewSet, basename="follows")
@@ -13,7 +14,7 @@ router.register(
     FollowChangeSet,
     basename="subscribe",
 )
-router.register("recipes", RecipesViewSet, basename="recipes")
+router.register("recipes", RecipeViewSet, basename="recipes")
 router.register(
     r"recipes/(?P<recipe_id>\d+)/favorite",
     FavoriteViewSet,
@@ -24,8 +25,8 @@ router.register(
     ChangeShoppingListViewSet,
     basename="shopping_cart",
 )
-router.register("tags", TagsViewSet, basename="tags")
-router.register("ingredients", IngredientsViewSet, basename="ingredients")
+router.register("tags", TagViewSet, basename="tags")
+router.register("ingredients", IngredientViewSet, basename="ingredients")
 
 
 urlpatterns = [

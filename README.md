@@ -43,7 +43,7 @@ git clone https://<имя_пользователя_на_github>:<пароль>@g
 ```
 - Копиование образа с DockerHub:
 ```bash
-docker pull danielseddian/foodgram_final
+docker pull danielseddian/foodgram
 ```
 
 _Redoc проекта с инструкцией для доступа к API сервера: http://www.webtodo.xyz/api/docs/redoc/_

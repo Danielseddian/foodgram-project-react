@@ -1,8 +1,9 @@
 from django.contrib import admin
-from food.food_models import Ingredients, Products, Recipes
-from food.lists_models import Favorites, ShoppingLists
-from food.marks_models import Tags
-from users.models import Follow, User
+
+from .food.food_models import Ingredient, Product, Recipe
+from .food.lists_models import Favorite, ShoppingList
+from .food.marks_models import Tag
+from .users.models import Follow, User
 
 
 @admin.register(User)
@@ -45,8 +46,8 @@ class FollowAdmin(admin.ModelAdmin):
     empty_value_display = "-пусто-"
 
 
-@admin.register(Favorites)
-class FavoritesAdmin(admin.ModelAdmin):
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "admirer",
@@ -57,8 +58,8 @@ class FavoritesAdmin(admin.ModelAdmin):
     empty_value_display = "-пусто-"
 
 
-@admin.register(Ingredients)
-class IngredientsAdmin(admin.ModelAdmin):
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "ingredient",
@@ -78,8 +79,8 @@ class IngredientsAdmin(admin.ModelAdmin):
     empty_value_display = "-пусто-"
 
 
-@admin.register(Products)
-class ProductsAdmin(admin.ModelAdmin):
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "name",
@@ -93,12 +94,12 @@ class ProductsAdmin(admin.ModelAdmin):
     empty_value_display = "-пусто-"
 
 
-class IngredientsInLine(admin.TabularInline):
-    model = Ingredients
+class IngredientInLine(admin.TabularInline):
+    model = Ingredient
 
 
-@admin.register(Recipes)
-class RecipesAdmin(admin.ModelAdmin):
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "author",
@@ -107,7 +108,7 @@ class RecipesAdmin(admin.ModelAdmin):
         "text",
         "cooking_time",
     )
-    inlines = [IngredientsInLine]
+    inlines = [IngredientInLine]
     search_fields = ("author", "name", "tags")
     list_filter = ("author", "name", "tags")
     empty_value_display = "-пусто-"
@@ -118,8 +119,8 @@ class RecipesAdmin(admin.ModelAdmin):
         return super().save_model(request, obj, form, change)
 
 
-@admin.register(ShoppingLists)
-class ShoppingListsAdmin(admin.ModelAdmin):
+@admin.register(ShoppingList)
+class ShoppingListAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "buyer",
@@ -136,8 +137,8 @@ class ShoppingListsAdmin(admin.ModelAdmin):
     empty_value_display = "-пусто-"
 
 
-@admin.register(Tags)
-class TagsAdmin(admin.ModelAdmin):
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "name",
