@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from rest_framework import permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -6,9 +5,10 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
 from .food_models import Recipe
-from .food_serializers import RecipeAddSerializer
+from .food_serializers import RecipeSerializer
 from .lists_serializers import FavoriteSerializer, ShoppingListSerializer
 from api.base_mixins_classes import CreateView
+from .converters import get_content
 
 
 class ChangeShoppingListViewSet(CreateView):
@@ -26,7 +26,7 @@ class ChangeShoppingListViewSet(CreateView):
         return Response(serializer.data, status=HTTP_201_CREATED)
 
     def get_view_serializer(self, *args, **kwargs):
-        serializer_class = RecipeAddSerializer
+        serializer_class = RecipeSerializer
         kwargs.setdefault("context", self.get_serializer_context())
         return serializer_class(*args, **kwargs)
 
@@ -53,7 +53,7 @@ class FavoriteViewSet(CreateView):
         return Response(serializer.data, status=HTTP_201_CREATED)
 
     def get_view_serializer(self, *args, **kwargs):
-        serializer_class = RecipeAddSerializer
+        serializer_class = RecipeSerializer
         kwargs.setdefault("context", self.get_serializer_context())
         return serializer_class(*args, **kwargs)
 
@@ -72,24 +72,7 @@ class DownloadShoppingCart(APIView):
         name_field = "products__ingredients__ingredient__name"
         measure_field = "products__ingredients__ingredient__measurement_unit"
         amount_field = "products__ingredients__amount"
-        ingredients = self.request.user.buyer.values(
+        data = self.request.user.buyer.values(
             name_field, measure_field, amount_field
         )
-        products = {}
-        for ingredient in ingredients:
-            name, measurement, amount = (
-                ingredient[name_field],
-                ingredient[measure_field],
-                ingredient[amount_field],
-            )
-            product = name + f" ({measurement}) — "
-            if product in products:
-                products[product] += amount
-            else:
-                products[product] = amount
-        content = ""
-        for product in products:
-            content += product + str(products[product]) + "\n"
-        response = HttpResponse(content, content_type="text/plain")
-        response["Content-Disposition"] = "attachment; filename=to_buy.txt"
-        return response
+        return get_content(data, name_field, measure_field, amount_field)

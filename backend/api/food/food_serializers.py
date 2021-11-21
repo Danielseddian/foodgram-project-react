@@ -1,13 +1,13 @@
-from rest_framework.exceptions import ValidationError
-from rest_framework.serializers import (CharField, ImageField, ModelSerializer,
+from rest_framework.serializers import (CharField, ModelSerializer,
                                         SerializerMethodField)
-from api.users.serializers import UserSerializer
 
+from api.users.serializers import UserSerializer
+from .converters import Base64ImageField
 from .food_models import Ingredient, Product, Recipe
 from .lists_models import Favorite, ShoppingList
+from .marks_models import Tag
 from .marks_serializers import TagSerializer
-
-LITTLE_TIME = "На всё требуется время. Хотя бы одна минута"
+from .validators import validate_ingredients, validate_tags
 
 
 class ProductSerializer(ModelSerializer):
@@ -29,21 +29,24 @@ class IngredientSerializer(ModelSerializer):
         model = Ingredient
 
 
-class GetRecipeSerializer(ModelSerializer):
+class RecipeSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
     ingredients = IngredientSerializer(many=True, read_only=True)
     is_favorited = SerializerMethodField("check_is_favorite")
     is_in_shopping_cart = SerializerMethodField("check_is_in_shopping_cart")
-    image = SerializerMethodField()
+    image = Base64ImageField()
 
     class Meta:
         fields = "__all__"
         model = Recipe
 
     def check_is_favorite(self, obj):
-        admirer = self.context.get("request").user
-        favorite = (
+        request = self.context.get("request")
+        if not request:
+            return False
+        admirer = request.user
+        favorited = (
             True
             if admirer.is_authenticated
             and Favorite.objects.filter(
@@ -52,10 +55,13 @@ class GetRecipeSerializer(ModelSerializer):
             ).exists()
             else False
         )
-        return favorite
+        return favorited
 
     def check_is_in_shopping_cart(self, obj):
-        buyer = self.context.get("request").user
+        request = self.context.get("request")
+        if not request:
+            return False
+        buyer = request.user
         is_in_shopping_cart = (
             True
             if buyer.is_authenticated
@@ -67,20 +73,46 @@ class GetRecipeSerializer(ModelSerializer):
         )
         return is_in_shopping_cart
 
-    def get_image(self, obj):
-        return obj.image.url
+    def create(self, data):
+        tags = validate_tags(data.pop("tags"))
+        amounts, products = validate_ingredients(data.pop("ingredients"))
+        recipe = Recipe.objects.create(**data)
+        self.fill_the_recipe(amounts, products, recipe, tags)
+        return recipe
 
+    def update(self, recipe, data):
+        tags = validate_tags(data.pop("tags"))
+        amounts, products = validate_ingredients(data.pop("ingredients"))
+        self.fill_the_recipe(amounts, products, recipe, tags)
+        super().update(recipe, data)
+        return recipe
 
-class RecipeAddSerializer(GetRecipeSerializer):
-    author = UserSerializer(read_only=True)
-    image = ImageField()
+    def fill_the_recipe(self, amounts, products, recipe, tags):
+        recipe.tags.set(Tag.objects.filter(id__in=tags))
+        key = "ingredient__id"
+        ingredients = Ingredient.objects.filter(recipe=recipe)
+        values = [pk[key] for pk in ingredients.values(key)]
+        adding = []
+        updating = []
+        for product in products:
+            product_id = product.id
+            if product_id in values:
+                ingredient = ingredients.get(ingredient__id=product_id)
+                ingredient.amount = amounts[product_id]
+                updating.append(ingredient)
+            else:
+                ingredient = Ingredient(
+                    ingredient=product,
+                    recipe=recipe,
+                    amount=amounts[product_id],
+                )
+                adding.append(ingredient)
+        if updating:
+            Ingredient.objects.bulk_update(updating, ["amount"])
+        Ingredient.objects.bulk_create(adding) if adding else None
+        ingredients.exclude(ingredient__id__in=amounts).delete()
 
-    class Meta:
-        fields = "__all__"
-        model = Recipe
-
-    def validate(self, data):
-        context = self.context.get("request")
-        if int(context.data.get("cooking_time")) < 1:
-            raise ValidationError(LITTLE_TIME)
-        return super().validate(data)
+    def to_representation(self, obj):
+        data = super().to_representation(obj)
+        data["image"] = obj.image.url
+        return data

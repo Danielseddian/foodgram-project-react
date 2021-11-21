@@ -1,6 +1,13 @@
 version: '3.7'
 services:
 
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ../frontend/:/app/result_build/
+
   db:
     image: postgres:12.4
     restart: always
@@ -19,13 +26,6 @@ services:
       - ../backend/static_value:/code/back_static/
     env_file:
       - ../backend/.env
-
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    volumes:
-      - ../frontend/:/app/result_build/
 
 
   nginx:
