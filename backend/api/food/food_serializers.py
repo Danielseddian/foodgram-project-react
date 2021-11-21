@@ -41,6 +41,14 @@ class RecipeSerializer(ModelSerializer):
         fields = "__all__"
         model = Recipe
 
+    def validate_cooking_time(self, cooking_time):
+        validate_time(cooking_time)
+        return super().validate(cooking_time)
+
+    def validate_tags(self, tags):
+        validate_tags(tags)
+        return super().validate(tags)
+
     def check_is_favorite(self, obj):
         request = self.context.get("request")
         if not request:
@@ -74,17 +82,15 @@ class RecipeSerializer(ModelSerializer):
         return is_in_shopping_cart
 
     def create(self, data):
-        tags = validate_tags(data.pop("tags"))
+        tags = data.pop("tags")
         amounts, products = validate_ingredients(data.pop("ingredients"))
-        validate_time(data.get("cooking_time"))
         recipe = Recipe.objects.create(**data)
         self.fill_the_recipe(amounts, products, recipe, tags)
         return recipe
 
     def update(self, recipe, data):
-        tags = validate_tags(data.pop("tags"))
+        tags = data.pop("tags")
         amounts, products = validate_ingredients(data.pop("ingredients"))
-        validate_time(data.get("cooking_time"))
         self.fill_the_recipe(amounts, products, recipe, tags)
         super().update(recipe, data)
         return recipe
@@ -111,7 +117,8 @@ class RecipeSerializer(ModelSerializer):
                 adding.append(ingredient)
         if updating:
             Ingredient.objects.bulk_update(updating, ["amount"])
-        Ingredient.objects.bulk_create(adding) if adding else None
+        if adding:
+            Ingredient.objects.bulk_create(adding)
         ingredients.exclude(ingredient__id__in=amounts).delete()
 
     def to_representation(self, obj):

@@ -1,10 +1,9 @@
-from django.db.models.query import QuerySet
 from rest_framework.viewsets import ModelViewSet
 
-from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .filters import IngredientFilter, RecipeFilter
 from .food_models import Product, Recipe
 from .food_serializers import RecipeSerializer, ProductSerializer
+from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 
 
 class IngredientViewSet(ModelViewSet):
@@ -22,12 +21,9 @@ class RecipeViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly, IsAuthorOrReadOnly]
 
     def get_queryset(self):
-        queryset = self.queryset
         if "tags" not in self.request.query_params and not self.kwargs:
-            return queryset.none()
-        if isinstance(queryset, QuerySet):
-            queryset = queryset.all()
-        return queryset
+            return self.queryset.none()
+        return super().get_queryset()
 
     def perform_create(self, serializer):
         serializer.save(

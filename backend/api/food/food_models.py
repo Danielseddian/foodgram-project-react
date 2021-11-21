@@ -27,7 +27,7 @@ class Product(models.Model):
 class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
-        related_name="tagged",
+        related_name="recipes",
     )
     author = models.ForeignKey(
         User,

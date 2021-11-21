@@ -35,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
             and Follow.objects.filter(
                 following=user,
                 follower=follower,
-            )
+            ).exists()
             else False
         )
         return follow
