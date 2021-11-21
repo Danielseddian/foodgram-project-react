@@ -1,10 +1,9 @@
 from django_filters import rest_framework as rest_filters
 from rest_framework.viewsets import ModelViewSet
 
-from api.permissions import IsAdminOrReadOnly
-
 from .marks_models import Tag
 from .marks_serializers import TagSerializer
+from api.permissions import IsAdminOrReadOnly
 
 
 class TagViewSet(ModelViewSet):

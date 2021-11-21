@@ -1,13 +1,13 @@
 from rest_framework.serializers import (CharField, ModelSerializer,
                                         SerializerMethodField)
 
-from api.users.serializers import UserSerializer
 from .converters import Base64ImageField
 from .food_models import Ingredient, Product, Recipe
 from .lists_models import Favorite, ShoppingList
 from .marks_models import Tag
 from .marks_serializers import TagSerializer
-from .validators import validate_ingredients, validate_tags
+from .validators import validate_ingredients, validate_tags, validate_time
+from api.users.serializers import UserSerializer
 
 
 class ProductSerializer(ModelSerializer):
@@ -76,6 +76,7 @@ class RecipeSerializer(ModelSerializer):
     def create(self, data):
         tags = validate_tags(data.pop("tags"))
         amounts, products = validate_ingredients(data.pop("ingredients"))
+        validate_time(data.get("cooking_time"))
         recipe = Recipe.objects.create(**data)
         self.fill_the_recipe(amounts, products, recipe, tags)
         return recipe
@@ -83,6 +84,7 @@ class RecipeSerializer(ModelSerializer):
     def update(self, recipe, data):
         tags = validate_tags(data.pop("tags"))
         amounts, products = validate_ingredients(data.pop("ingredients"))
+        validate_time(data.get("cooking_time"))
         self.fill_the_recipe(amounts, products, recipe, tags)
         super().update(recipe, data)
         return recipe

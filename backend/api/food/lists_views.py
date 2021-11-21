@@ -4,11 +4,11 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
+from .converters import get_content
 from .food_models import Recipe
 from .food_serializers import RecipeSerializer
 from .lists_serializers import FavoriteSerializer, ShoppingListSerializer
 from api.base_mixins_classes import CreateView
-from .converters import get_content
 
 
 class ChangeShoppingListViewSet(CreateView):

@@ -6,13 +6,13 @@ LITTLE_TIME = "На всё требуется время. Хотя бы одна
 MISSING_AMOUNT = "Так ничего не приготовить — требуется больше ингредиента."
 MISSING_INGREDIENT = "Необходим хоть один ингредиет."
 MISSING_TAGS = "Необходимо отметить хоть один тег."
+NEGATIVE_ID = "ID-ключ {object} не может быть отрицательным."
 UNIQ_TAGS = "Теги нельзя указывать дважды."
 WRONG_PRODUCT = "Такого ингредиента пока нет, но, возможно, скоро появится."
 
 
-def validate_cooking_time(data):
-    context = data.get("request")
-    if int(context.data.get("cooking_time")) < 1:
+def validate_time(data):
+    if not data or int(data) < 1:
         raise ValidationError(LITTLE_TIME)
     return data
 
@@ -26,6 +26,8 @@ def validate_ingredients(data):
         if amount < 1:
             raise ValidationError(MISSING_AMOUNT)
         pk = int(ingredient["id"])
+        if pk < 0:
+            raise ValidationError(NEGATIVE_ID.format("ингредиента"))
         amounts[pk] = amounts[pk] + amount if pk in amounts else amount
     products = Product.objects.filter(id__in=amounts)
     values = [pk["id"] for pk in products.values("id")]
@@ -39,4 +41,7 @@ def validate_tags(data):
         raise ValidationError(MISSING_TAGS)
     if len(data) != len(set(data)):
         raise ValidationError(UNIQ_TAGS)
+    for pk in data:
+        if pk < 0:
+            raise ValidationError(NEGATIVE_ID.format("тэга"))
     return data

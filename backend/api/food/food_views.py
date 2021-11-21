@@ -2,7 +2,6 @@ from django.db.models.query import QuerySet
 from rest_framework.viewsets import ModelViewSet
 
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
-
 from .filters import IngredientFilter, RecipeFilter
 from .food_models import Product, Recipe
 from .food_serializers import RecipeSerializer, ProductSerializer

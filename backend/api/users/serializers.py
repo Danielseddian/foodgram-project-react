@@ -1,10 +1,10 @@
-from api.food.food_models import Recipe
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Follow, User
+from api.food.food_models import Recipe
 
 SELF_FOLLOWING = "Нельзя подписаться на себя"
 FOLLOW_EXISTS = "Такая подписка уже существует"
@@ -25,7 +25,10 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
     def get_user_subscribe(self, user):
-        follower = self.context["request"].user
+        request = self.context.get("request")
+        if not request:
+            return False
+        follower = request.user
         follow = (
             True
             if follower.is_authenticated
@@ -92,7 +95,8 @@ class FollowSerializer(UserSerializer):
         model = User
 
     def get_recipes(self, obj, limit="recipes_limit"):
-        params = self.context["request"].query_params
+        request = self.context.get("request")
+        params = request.query_params if request else None
         recipes = Recipe.objects.filter(author=obj)
         recipes = recipes[: int(params[limit])] if limit in params else recipes
         return GetRecipeSerializer(recipes, many=True).data
@@ -103,7 +107,8 @@ class FollowSerializer(UserSerializer):
 
 class FollowCreateDestroySerializer(serializers.ModelSerializer):
     def validate(self, attrs):
-        if self.context["request"].user == attrs["following"]:
+        request = self.context.get("request")
+        if request and request.user == attrs["following"]:
             raise ValidationError(SELF_FOLLOWING)
         return attrs
 

@@ -1,8 +1,7 @@
 from django.db import models
 
-from api.users.models import User
-
 from .marks_models import Tag
+from api.users.models import User
 
 
 class Product(models.Model):
