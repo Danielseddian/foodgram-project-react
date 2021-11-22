@@ -165,7 +165,7 @@ MEDIA_URL = "/media/"
 
 SECRET_KEY = environ.get("SECRET_KEY", "some_secret_key")
 
-DEBUG = environ.get("DEBUG", True)
+DEBUG = environ.get("DEBUG", False)
 
 ALLOWED_HOSTS = environ.get("ALLOWED_HOSTS", "localhost web").split()
 
