@@ -16,7 +16,7 @@ class FollowViewSet(GenericViewSet, ListModelMixin):
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        return User.objects.filter(following__follower=self.request.user.id)
+        return User.objects.filter(followers__follower=self.request.user.id)
 
 
 class FollowChangeSet(CreateView, RetrieveModelMixin):
@@ -40,7 +40,7 @@ class FollowChangeSet(CreateView, RetrieveModelMixin):
 
     def delete(self, *args, **kwargs):
         get_object_or_404(
-            self.request.user.follower,
+            self.request.user.follows,
             following__id=kwargs["user_id"],
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

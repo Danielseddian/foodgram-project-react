@@ -29,7 +29,7 @@ class Follow(models.Model):
     following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="follows",
+        related_name="followers",
     )
     follower = models.ForeignKey(
         User,

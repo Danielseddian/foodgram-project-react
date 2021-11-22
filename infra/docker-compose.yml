@@ -2,7 +2,7 @@ version: '3.7'
 services:
 
   frontend:
-    image: danielseddian/foodgram_frontend:latest
+    image: danielseddian/foodgram_frontend:1.0.0
     volumes:
       - ../frontend/:/app/result_build/
 
@@ -15,7 +15,7 @@ services:
       - ../backend/.env
   
   web:
-    image: danielseddian/foodgram_backend:latest
+    image: danielseddian/foodgram_backend:0.97.1
     restart: always
     volumes:
       - ../backend/media_value:/code/media/
