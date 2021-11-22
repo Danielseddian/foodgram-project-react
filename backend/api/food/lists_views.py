@@ -59,7 +59,7 @@ class FavoriteViewSet(CreateView):
 
     def delete(self, *args, **kwargs):
         get_object_or_404(
-            self.request.user.admirer,
+            self.request.user.favorites,
             recipe__id=kwargs["recipe_id"],
         ).delete()
         return Response(status=HTTP_204_NO_CONTENT)
@@ -72,7 +72,7 @@ class DownloadShoppingCart(APIView):
         name_field = "products__ingredients__ingredient__name"
         measure_field = "products__ingredients__ingredient__measurement_unit"
         amount_field = "products__ingredients__amount"
-        data = self.request.user.buyer.values(
+        data = self.request.user.to_buy.values(
             name_field, measure_field, amount_field
         )
         return get_content(data, name_field, measure_field, amount_field)

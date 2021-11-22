@@ -32,7 +32,7 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="author",
+        related_name="recipes",
     )
     name = models.CharField(
         max_length=50,
@@ -70,7 +70,7 @@ class Ingredient(models.Model):
         Product,
         verbose_name="Ингридиент",
         on_delete=models.CASCADE,
-        related_name="to_cook",
+        related_name="ingredients",
     )
     amount = models.PositiveIntegerField(
         verbose_name="Количество",

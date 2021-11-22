@@ -22,7 +22,7 @@ class RecipeFilter(filters.FilterSet):
 
     def get_favorited(self, queryset, name, value):
         if value and self.request.user.is_authenticated:
-            return queryset.filter(favorited__admirer=self.request.user)
+            return queryset.filter(favorites__admirer=self.request.user)
         return queryset
 
     def get_shopping_cart(self, queryset, name, value):

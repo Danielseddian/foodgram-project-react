@@ -8,7 +8,7 @@ class ShoppingList(models.Model):
     buyer = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="buyer",
+        related_name="to_buy",
     )
     products = models.ForeignKey(
         Recipe,
@@ -38,12 +38,12 @@ class Favorite(models.Model):
     admirer = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="admirer",
+        related_name="faforites",
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name="favorited",
+        related_name="favorites",
     )
 
     class Meta:
