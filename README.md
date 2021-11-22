@@ -50,3 +50,8 @@ _Redoc проекта с инструкцией для доступа к API с�
 
 _Автор: Кучин Денис, DanielSeddian@, при поддержке наставников и материалов учебного курса_ *Яндекс.Практикум Python-разработчик*
 ![foodgram workflow](https://github.com/Danielseddian/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+### web-адрес проекта:
+- webtodo.xyz
+### логин и пароль администратора:
+- Yandex.Practicum
+- Practicum1q2w3e

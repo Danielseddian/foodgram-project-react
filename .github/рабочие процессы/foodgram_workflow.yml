@@ -68,6 +68,7 @@ jobs:
             sudo docker pull ${{ secrets.HUB_USERNAME }}/foodgram_backend:latest
             sudo docker stop $(sudo docker ps -a -q)
             sudo docker-compose rm web
+            sudo mkdir ./backend
             sudo touch ./backend/.env
             sudo echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             sudo echo DB_NAME=${{ secrets.DB_NAME }} >> .env
