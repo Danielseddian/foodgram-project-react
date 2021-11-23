@@ -38,7 +38,7 @@ class Favorite(models.Model):
     admirer = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="faforites",
+        related_name="favorites",
     )
     recipe = models.ForeignKey(
         Recipe,

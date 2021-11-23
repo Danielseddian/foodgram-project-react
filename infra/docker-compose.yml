@@ -15,7 +15,7 @@ services:
       - ../backend/.env
   
   web:
-    image: danielseddian/foodgram_backend:0.97.1
+    image: danielseddian/foodgram_backend:0.98.0
     restart: always
     volumes:
       - ../backend/media_value:/code/media/

@@ -32,7 +32,7 @@ class ChangeShoppingListViewSet(CreateView):
 
     def delete(self, *args, **kwargs):
         get_object_or_404(
-            self.request.user.buyer,
+            self.request.user.to_buy,
             products__id=kwargs["recipe_id"],
         ).delete()
         return Response(status=HTTP_204_NO_CONTENT)

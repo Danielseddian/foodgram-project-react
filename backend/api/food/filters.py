@@ -1,6 +1,7 @@
 from django_filters import rest_framework as filters
 from django_filters.filters import (AllValuesFilter, AllValuesMultipleFilter,
                                     CharFilter)
+from rest_framework.pagination import PageNumberPagination
 
 from .food_models import Product, Recipe
 
@@ -43,3 +44,8 @@ class IngredientFilter(filters.FilterSet):
     class Meta:
         model = Product
         fields = ("name",)
+
+
+class CustomPagination(PageNumberPagination):
+    page_size_query_param = 'limit'
+    page_query_param = 'page'

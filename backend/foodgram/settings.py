@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 context_processors = "django.template.context_processors."
 contrib = "django.contrib."
 middleware = "django.middleware."
-pagination = "rest_framework.pagination."
 password_validation = contrib + "auth.password_validation."
 permissions = "rest_framework.permissions."
 throttling = "rest_framework.throttling."
@@ -62,7 +61,7 @@ REST_FRAMEWORK = {
         "user": "10000/minute",
         "anon": "100/minute",
     },
-    "DEFAULT_PAGINATION_CLASS": pagination + "PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": "api.food.filters.CustomPagination",
     "PAGE_SIZE": 6,
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
